@@ -12,15 +12,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/tokens.css?v=5">
-  <link rel="stylesheet" href="css/base.css?v=5">
-  <link rel="stylesheet" href="css/header.css?v=5">
-  <link rel="stylesheet" href="css/hero.css?v=5">
-  <link rel="stylesheet" href="css/intro.css?v=5">
-  <link rel="stylesheet" href="css/benefits.css?v=5">
-  <link rel="stylesheet" href="css/how.css?v=5">
-  <link rel="stylesheet" href="css/footer.css?v=5">
-  <link rel="stylesheet" href="css/quiz.css?v=5">
+  <link rel="preload" as="image" href="assets/img/dog-hero.webp">
+
+  <link rel="stylesheet" href="css/tokens.css?v=11">
+  <link rel="stylesheet" href="css/base.css?v=11">
+  <link rel="stylesheet" href="css/header.css?v=11">
+  <link rel="stylesheet" href="css/hero.css?v=11">
+  <link rel="stylesheet" href="css/intro.css?v=11">
+  <link rel="stylesheet" href="css/benefits.css?v=11">
+  <link rel="stylesheet" href="css/how.css?v=11">
+  <link rel="stylesheet" href="css/footer.css?v=11">
+  <link rel="stylesheet" href="css/quiz.css?v=11">
 </head>
 <body data-pet="dog">
 
@@ -39,6 +41,7 @@
     <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8.5 5.5-14 15-14 0 9.5-5.5 15-14 15M5 19l7.5-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11.5h18a9 8 0 0 1-18 0zM8.5 8c0-1.2 1-1.8 1-3M12.5 8c0-1.2 1-1.8 1-3M16.5 8c0-1.2 1-1.8 1-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11zM13.5 9.5h4l3 3.2v2.8h-7zM6.5 18.5a1.8 1.8 0 1 0 0-.1M16.5 18.5a1.8 1.8 0 1 0 0-.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 8h18M3 16h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="flag-ru" viewBox="0 0 30 30"><g clip-path="url(#flag-circle)"><rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#0039A6"/><rect y="20" width="30" height="10" fill="#D52B1E"/></g></symbol>
     <symbol id="flag-en" viewBox="0 0 30 30"><g clip-path="url(#flag-circle)"><g transform="translate(-15 0)"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-t)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></g></symbol>
@@ -47,9 +50,13 @@
   <!-- ============ HEADER ============ -->
   <header class="header" id="header">
     <div class="header__inner">
-      <button class="header__burger" type="button" data-menu-toggle aria-expanded="false" data-i18n-aria="nav.menu">
-        <svg><use href="#i-menu"/></svg>
-      </button>
+      <a class="header__logo" href="#top" aria-label="Pawology">
+        <span class="header__logo-light" aria-hidden="true">
+          <img src="assets/img/word-letters.png" alt="">
+          <img class="header__logo-paw" src="assets/img/word-paw.png" alt="">
+        </span>
+        <img class="header__logo-color" src="assets/img/logo.png" alt="Pawology">
+      </a>
 
       <nav class="header__nav" aria-label="Main">
         <a href="#start" data-i18n="nav.meals">Рационы</a>
@@ -58,17 +65,15 @@
         <a href="#faq" data-i18n="nav.faq">FAQ</a>
       </nav>
 
-      <a class="header__logo" href="#top" aria-label="Pawology">
-        <img class="header__paw" src="assets/img/paw.png" alt="">
-        <img class="header__wordmark" src="assets/img/logo.png" alt="Pawology">
-      </a>
-
       <div class="header__actions">
         <div class="lang-switch" role="group" aria-label="Language">
           <button type="button" data-lang-btn="ru" aria-label="Русский"><svg><use href="#flag-ru"/></svg></button>
           <button type="button" data-lang-btn="en" aria-label="English"><svg><use href="#flag-en"/></svg></button>
         </div>
         <button class="header__cta btn-pill" type="button" data-open-quiz data-i18n="cta.pick">Подобрать рацион</button>
+        <button class="header__burger" type="button" data-menu-toggle aria-expanded="false" data-i18n-aria="nav.menu">
+          <svg><use href="#i-menu"/></svg>
+        </button>
       </div>
     </div>
   </header>
@@ -93,57 +98,68 @@
     <section class="hero" id="hero" aria-labelledby="hero-title">
       <div class="hero__card">
         <div class="hero__wash" aria-hidden="true"></div>
-        <h1 class="visually-hidden" id="hero-title" data-i18n="hero.h1">Pawology — натуральное питание для собак и кошек с доставкой по Тбилиси</h1>
 
-        <div class="hero__head">
-          <div class="hero__word" aria-hidden="true">
-            <img class="hero__word-letters" src="assets/img/word-letters.png" alt="">
-            <img class="hero__word-paw" src="assets/img/word-paw.png" alt="">
-          </div>
-          <p class="hero__tag" data-i18n="hero.tag">Готовые рационы · доставка по Тбилиси</p>
+        <!-- жирная линия за питомцем (уходит за правый верхний угол) -->
+        <svg class="hero__swoosh" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+          <path pathLength="1" d="M300 760 C 420 520, 600 640, 700 440 S 880 120, 1120 -60"/>
+        </svg>
+
+        <!-- еда на дальнем плане -->
+        <div class="floats floats--back" aria-hidden="true">
+          <img class="float f-far hero-f1" src="assets/img/carrot-blur.webp" alt="">
+          <img class="float f-far hero-f2" src="assets/img/meat-far.webp" alt="">
         </div>
 
-        <!-- «Палочки»-дудлы слева от питомца -->
-        <svg class="hero__doodle hero__doodle--sticks" viewBox="0 0 80 80" aria-hidden="true">
+        <div class="hero__pets" aria-hidden="true">
+          <img class="hero__pet hero__pet--dog" src="assets/img/dog-hero.webp" alt="">
+          <img class="hero__pet hero__pet--cat" src="assets/img/cat-hero.webp" alt="" loading="lazy">
+        </div>
+
+        <!-- еда на среднем и ближнем плане -->
+        <div class="floats floats--front" aria-hidden="true">
+          <img class="float f-mid hero-f3" src="assets/img/carrot.webp" alt="">
+          <img class="float f-mid hero-f4" src="assets/img/pumpkin.webp" alt="">
+          <img class="float f-near hero-f5" src="assets/img/broccoli2-blur.webp" alt="">
+        </div>
+
+        <svg class="hero__doodle" viewBox="0 0 80 80" aria-hidden="true">
           <path d="M44 6 L54 30"/>
           <path d="M24 22 L42 40"/>
           <path d="M8 46 L34 52"/>
         </svg>
-        <svg class="hero__doodle hero__doodle--heart" viewBox="0 0 60 60" aria-hidden="true">
-          <path d="M30 50 C 8 36, 6 18, 18 13 C 25 10, 29 15, 30 20 C 31 15, 36 9, 43 12 C 55 17, 50 37, 30 50 Z"/>
-        </svg>
 
-        <div class="hero__pets" aria-hidden="true">
-          <img class="hero__pet hero__pet--dog" src="assets/img/dog.png" alt="">
-          <img class="hero__pet hero__pet--cat" src="assets/img/cat.png" alt="" loading="lazy">
-        </div>
+        <div class="hero__content">
+          <div class="hero__text">
+            <h1 class="display hero__title" id="hero-title" data-i18n-html="hero.title">Натуральные рационы для кошек и собак</h1>
+            <p class="hero__sub" data-i18n="hero.sub">с доставкой по Тбилиси</p>
+            <p class="hero__promo" data-i18n-html="hero.promo"></p>
+          </div>
 
-        <div class="hero__bottom">
-          <button class="hero__cta" type="button" data-open-quiz>
-            <span class="hero__cta-text">
-              <span class="hero__cta-kicker" data-i18n="hero.for">для собаки</span>
-              <span class="hero__cta-main" data-i18n="cta.pick">Подобрать рацион</span>
-            </span>
-            <span class="hero__cta-arrow"><svg><use href="#i-arrow"/></svg></span>
-          </button>
-
-          <div class="pet-toggle" role="radiogroup" data-i18n-aria="pet.question">
-            <span class="pet-toggle__knob" aria-hidden="true"></span>
-            <button type="button" role="radio" data-pet-btn="dog" data-i18n-aria="pet.dog"><svg><use href="#i-dog"/></svg></button>
-            <button type="button" role="radio" data-pet-btn="cat" data-i18n-aria="pet.cat"><svg><use href="#i-cat"/></svg></button>
+          <div class="hero__actions">
+            <div class="pet-switch" role="radiogroup" data-i18n-aria="pet.question">
+              <span class="pet-switch__knob" aria-hidden="true"></span>
+              <button type="button" role="radio" data-pet-btn="dog"><svg><use href="#i-dog"/></svg><span data-i18n="pet.forDogs">Для собак</span></button>
+              <button type="button" role="radio" data-pet-btn="cat"><svg><use href="#i-cat"/></svg><span data-i18n="pet.forCats">Для кошек</span></button>
+            </div>
+            <button class="hero__cta" type="button" data-open-quiz>
+              <span data-i18n="cta.pick">Подобрать рацион</span>
+              <span class="hero__cta-arrow"><svg><use href="#i-arrow"/></svg></span>
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ SCREEN 2 · INTRO + вход в квиз ============ -->
+    <!-- ============ SCREEN 2 · вход в квиз ============ -->
     <section class="intro" id="start" aria-labelledby="intro-title">
-      <img class="intro__bowl" src="assets/img/bowl.png" alt="" aria-hidden="true" loading="lazy" data-reveal>
+      <div class="floats" aria-hidden="true">
+        <img class="float f-far intro-f1" src="assets/img/meat-far.webp" alt="">
+        <img class="float f-mid intro-f2" src="assets/img/meat.webp" alt="">
+        <img class="float f-near intro-f3" src="assets/img/meat-blur.webp" alt="">
+      </div>
 
-      <h2 class="intro__title" id="intro-title" data-reveal>
-        <span data-i18n-html="intro.title"></span>
-      </h2>
-      <p class="intro__sub" data-reveal style="--d:.1s" data-i18n="intro.sub">Готовые порционные рационы — подберём питание под вашего питомца и привезём его домой.</p>
+      <h2 class="display intro__title" id="intro-title" data-reveal data-i18n-html="intro.title"></h2>
+      <p class="intro__sub" data-reveal style="--d:.1s" data-i18n="intro.sub">Ответьте на пару вопросов — и мы соберём рацион под характер, возраст и аппетит вашего питомца.</p>
 
       <form class="quiz-bar" id="quiz-bar" data-reveal style="--d:.2s" autocomplete="off" novalidate>
         <div class="quiz-bar__field field">
@@ -166,41 +182,50 @@
       <p class="intro__note" data-reveal style="--d:.3s" data-i18n="intro.note">2 минуты · без регистрации</p>
     </section>
 
-    <!-- ============ BENEFITS ============ -->
+    <!-- ============ SCREEN 3 · BENEFITS (боул + плашки) ============ -->
     <section class="benefits" id="about" aria-labelledby="benefits-title">
-      <div class="container">
-        <h2 class="section-title" id="benefits-title" data-reveal data-i18n-html="benefits.title"></h2>
+      <h2 class="section-title" id="benefits-title" data-reveal data-i18n-html="benefits.title"></h2>
 
-        <div class="benefits__grid">
-          <div class="benefits__photo" data-reveal>
-            <img src="assets/img/bowl.png" alt="" loading="lazy">
-            <span class="benefits__sticker" data-i18n="benefits.sticker">просто открыть и подать</span>
-          </div>
+      <div class="benefits__stage">
+        <svg data-draw class="benefits__swoosh" viewBox="0 0 1440 700" preserveAspectRatio="none" aria-hidden="true">
+          <path pathLength="1" d="M-80 330 C 160 170, 420 200, 600 330 S 880 560, 1080 470 S 1380 260, 1540 300"/>
+        </svg>
 
-          <ul class="benefits__list">
-            <li class="benefit" data-reveal style="--d:.05s">
-              <span class="benefit__icon"><svg><use href="#i-leaf"/></svg></span>
-              <div>
-                <h3 data-i18n="benefits.1.t">Натуральные ингредиенты</h3>
-                <p data-i18n="benefits.1.d">Понятный состав — без необходимости самостоятельно собирать рацион.</p>
-              </div>
-            </li>
-            <li class="benefit" data-reveal style="--d:.12s">
-              <span class="benefit__icon"><svg><use href="#i-bowl"/></svg></span>
-              <div>
-                <h3 data-i18n="benefits.2.t">Готовые порции</h3>
-                <p data-i18n="benefits.2.d">Не нужно закупать продукты, считать граммы и готовить.</p>
-              </div>
-            </li>
-            <li class="benefit" data-reveal style="--d:.19s">
-              <span class="benefit__icon"><svg><use href="#i-heart"/></svg></span>
-              <div>
-                <h3 data-i18n="benefits.3.t">Подбор под питомца</h3>
-                <p data-i18n="benefits.3.d">Учитываем основные параметры питомца, когда подбираем рацион.</p>
-              </div>
-            </li>
-          </ul>
+        <div class="floats" aria-hidden="true">
+          <img class="float f-mid ben-f1" src="assets/img/carrot.webp" alt="">
+          <img class="float f-far ben-f2" src="assets/img/carrot-blur.webp" alt="">
+          <img class="float f-mid ben-f3" src="assets/img/broccoli.webp" alt="">
+          <img class="float f-far ben-f4" src="assets/img/pumpkin-blur.webp" alt="">
+          <img class="float f-near ben-f5" src="assets/img/meat-blur.webp" alt="">
         </div>
+
+        <img class="benefits__bowl" src="assets/img/bowl-top.webp" alt="" loading="lazy" data-reveal>
+
+        <ul class="benefits__cards">
+          <li class="benefit benefit--1" data-reveal>
+            <span class="benefit__icon"><svg><use href="#i-leaf"/></svg></span>
+            <div><h3 data-i18n="benefits.1.t">Натуральные ингредиенты</h3><p data-i18n="benefits.1.d">Понятный состав — без необходимости самостоятельно собирать рацион.</p></div>
+          </li>
+          <li class="benefit benefit--2" data-reveal style="--d:.1s">
+            <span class="benefit__icon"><svg><use href="#i-bowl"/></svg></span>
+            <div><h3 data-i18n="benefits.2.t">Готовые порции</h3><p data-i18n="benefits.2.d">Не нужно закупать продукты, считать граммы и готовить.</p></div>
+          </li>
+          <li class="benefit benefit--3" data-reveal style="--d:.2s">
+            <span class="benefit__icon"><svg><use href="#i-heart"/></svg></span>
+            <div><h3 data-i18n="benefits.3.t">Подбор под питомца</h3><p data-i18n="benefits.3.d">Учитываем основные параметры питомца, когда подбираем рацион.</p></div>
+          </li>
+          <li class="benefit benefit--4" data-reveal style="--d:.3s">
+            <span class="benefit__icon"><svg><use href="#i-truck"/></svg></span>
+            <div><h3 data-i18n="benefits.4.t">Доставка по Тбилиси</h3><p data-i18n="benefits.4.d">Привозим заказ прямо домой — никуда ехать не нужно.</p></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="benefits__cta" data-reveal>
+        <button class="btn-accent" type="button" data-open-quiz>
+          <span data-i18n="cta.pick">Подобрать рацион</span>
+          <span class="btn-accent__arrow"><svg><use href="#i-arrow"/></svg></span>
+        </button>
       </div>
     </section>
 
@@ -265,10 +290,10 @@
       <div class="quiz__body">
         <div class="quiz__meta">
           <span class="quiz__step-count"></span>
-          <div class="pet-toggle pet-toggle--sm" role="radiogroup" data-i18n-aria="pet.question">
-            <span class="pet-toggle__knob" aria-hidden="true"></span>
-            <button type="button" role="radio" data-pet-btn="dog" data-i18n-aria="pet.dog"><svg><use href="#i-dog"/></svg></button>
-            <button type="button" role="radio" data-pet-btn="cat" data-i18n-aria="pet.cat"><svg><use href="#i-cat"/></svg></button>
+          <div class="pet-switch pet-switch--light" role="radiogroup" data-i18n-aria="pet.question">
+            <span class="pet-switch__knob" aria-hidden="true"></span>
+            <button type="button" role="radio" data-pet-btn="dog"><svg><use href="#i-dog"/></svg><span data-i18n="pet.forDogs">Для собак</span></button>
+            <button type="button" role="radio" data-pet-btn="cat"><svg><use href="#i-cat"/></svg><span data-i18n="pet.forCats">Для кошек</span></button>
           </div>
         </div>
         <div class="quiz__stage" id="quiz-stage"></div>
@@ -286,13 +311,13 @@
 
   <datalist id="breeds"></datalist>
 
-  <script src="js/i18n.js"></script>
-  <script src="js/state.js?v=5"></script>
-  <script src="js/header.js?v=5"></script>
-  <script src="js/hero.js?v=5"></script>
-  <script src="js/reveal.js?v=5"></script>
-  <script src="js/quiz-steps.js?v=5"></script>
-  <script src="js/quiz.js?v=5"></script>
-  <script src="js/main.js?v=5"></script>
+  <script src="js/i18n.js?v=11"></script>
+  <script src="js/state.js?v=11"></script>
+  <script src="js/header.js?v=11"></script>
+  <script src="js/hero.js?v=11"></script>
+  <script src="js/reveal.js?v=11"></script>
+  <script src="js/quiz-steps.js?v=11"></script>
+  <script src="js/quiz.js?v=11"></script>
+  <script src="js/main.js?v=11"></script>
 </body>
 </html>

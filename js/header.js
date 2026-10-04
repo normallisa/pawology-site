@@ -4,8 +4,16 @@
   const menu = document.getElementById("menu");
   const burger = document.querySelector("[data-menu-toggle]");
 
+  // вниз — прячем, вверх — плавно показываем
+  let lastY = window.scrollY;
   function onScroll() {
-    header.classList.toggle("is-solid", window.scrollY > 40);
+    const y = window.scrollY;
+    header.classList.toggle("is-solid", y > 40);
+    const menuOpen = menu.classList.contains("is-open");
+    if (!menuOpen && Math.abs(y - lastY) > 6) {
+      header.classList.toggle("is-hidden", y > lastY && y > 160);
+      lastY = y;
+    }
   }
 
   function setMenu(open) {

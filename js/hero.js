@@ -2,11 +2,10 @@
    Hero + PetSelector
    - переключатели [data-pet-btn] (в hero и в квизе) меняют питомца
    - смена питомца: карточка «сжимается», фон перетекает, питомцы меняются
-   - скролл: карточка чуть уменьшается, вордмарк уезжает (параллакс)
+   - скролл: карточка чуть уменьшается
    ========================================================= */
 (function () {
   const card = document.querySelector(".hero__card");
-  const ctaText = document.querySelector(".hero__cta-text");
   const wash = document.querySelector(".hero__wash");
   let switchTimer;
 
@@ -22,11 +21,9 @@
     wash.style.backgroundColor = prevColor;
     restartClass(wash, "is-running");
     restartClass(card, "is-switching");
-    restartClass(ctaText, "is-swapping");
     clearTimeout(switchTimer);
     switchTimer = setTimeout(() => {
       card.classList.remove("is-switching");
-      ctaText.classList.remove("is-swapping");
     }, 1300);
   }
 
@@ -70,8 +67,9 @@
       window.addEventListener("resize", onScroll);
 
       // старт анимаций после первого кадра (без лоадера)
-      requestAnimationFrame(() => document.body.classList.add("is-ready"));
-      setTimeout(() => card.classList.add("is-drawn"), 2600);
+      const ready = () => document.body.classList.add("is-ready");
+      requestAnimationFrame(ready);
+      setTimeout(ready, 120); // запасной вариант, если вкладка в фоне
     },
   };
 })();

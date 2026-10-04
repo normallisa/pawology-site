@@ -1,41 +1,32 @@
-/* ============ Screen 2 · Intro + стартовая строка квиза ============ */
+/* ============ Screen 2 · заголовок + вход в квиз ============ */
 .intro {
   position: relative;
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: 88px 20px 120px;
-  overflow: hidden;
+  padding: 44px 20px 110px;
+  overflow-x: clip;   /* по вертикали мясо может «выходить» за секцию */
+  z-index: 1;
 }
 
-.intro__title {
-  position: relative; z-index: 1;
-  max-width: 980px;
-  font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(30px, 5vw, 64px); line-height: 1.08; letter-spacing: -.04em;
-}
-.intro__title .hl { white-space: normal; }
-.intro__title .hl svg { bottom: -.28em; }
+.intro__title { position: relative; z-index: 1; max-width: 1000px; }
+.intro__title .hl { color: var(--accent-deep); transition: color var(--t-theme); }
+.intro__title .hl svg { bottom: -.22em; }
 
 .intro__sub {
   position: relative; z-index: 1;
-  max-width: 520px; margin-top: 28px;
+  max-width: 540px; margin-top: 22px;
   color: var(--ink-2); font-size: 16px;
 }
+.intro__note { position: relative; z-index: 1; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
 
-.intro__note { margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
-
-/* миска: на мобильном — над заголовком, на десктопе — летает сбоку */
-.intro__bowl {
-  position: relative; z-index: 0; pointer-events: none;
-  width: 150px; margin: -30px 0 20px;
-  rotate: 10deg;
-}
-.intro__bowl.is-in { animation: bowl-float 6s ease-in-out infinite 1s; }
-@keyframes bowl-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
+/* ---------- Мясо на трёх планах ---------- */
+.intro-f1 { width: 42px; left: 6%; top: 18px; --r0: -18deg; --dur: 9s; }
+.intro-f2 { width: 92px; right: -10px; top: 6px; --r0: 14deg; --dur: 7s; --delay: -3s; }
+.intro-f3 { width: 170px; left: -60px; bottom: -40px; --r0: -10deg; --dur: 11s; --delay: -5s; }
 
 /* ---------- Строка квиза (как у референса: белая «пилюля») ---------- */
 .quiz-bar {
   position: relative; z-index: 1;
-  width: 100%; max-width: 1080px; margin-top: 44px;
+  width: 100%; max-width: 1080px; margin-top: 36px;
   display: grid; gap: 10px;
   padding: 10px; border-radius: 28px;
   background: #fff; box-shadow: 0 24px 60px -30px rgba(35, 48, 30, .35);
@@ -55,14 +46,16 @@
 .quiz-bar__submit .btn-accent__arrow { width: 46px; height: 46px; }
 
 @media (min-width: 768px) {
-  .intro { padding: 120px 40px 150px; }
-  .intro__bowl { position: absolute; margin: 0; width: 160px; right: 2%; top: 16px; }
-  .intro__sub { font-size: 17px; }
+  .intro { padding: 48px 40px 140px; }
+  .intro__sub { font-size: 18px; }
+  .intro-f1 { width: 70px; left: 12%; top: 40px; }
+  .intro-f2 { width: 150px; right: 6%; top: 30%; }
+  .intro-f3 { width: 300px; left: -90px; bottom: -70px; }
 }
 
 @media (min-width: 1024px) {
-  .intro { padding: 160px 40px 180px; }
-  .intro__bowl { width: 210px; right: 3%; top: 24px; }
+  .intro { padding: 40px 40px 170px; }
+  .intro-f2 { width: 180px; right: 9%; top: 38%; }
 
   /* одна строка: поля через разделители + кнопка справа */
   .quiz-bar {

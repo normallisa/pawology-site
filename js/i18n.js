@@ -29,11 +29,14 @@
       "pet.cat": "Кошка",
 
       "hero.h1": "Pawology — натуральное питание для собак и кошек с доставкой по Тбилиси",
-      "hero.tag": "Готовые рационы · доставка по Тбилиси",
-      "hero.for": { dog: "для собаки", cat: "для кошки" },
+      "hero.title": "Натуральные рационы для кошек и собак",
+      "hero.sub": "с доставкой по Тбилиси",
+      "hero.promo": 'Скидка <span class="badge">−50%</span> на первый заказ',
+      "pet.forDogs": "Для собак",
+      "pet.forCats": "Для кошек",
 
-      "intro.title": `<b>Натуральное</b> ${HL("питание")} для кошек и собак с доставкой по Тбилиси`,
-      "intro.sub": "Готовые порционные рационы — подберём питание под вашего питомца и привезём его домой.",
+      "intro.title": `Подберём рацион ${HL("именно для вашего")} питомца`,
+      "intro.sub": "Ответьте на пару вопросов о питомце — и мы соберём рацион, который подойдёт именно ему.",
       "intro.note": "2 минуты · без регистрации",
 
       "benefits.title": `Почему это ${HL("удобно")}`,
@@ -44,6 +47,8 @@
       "benefits.2.d": "Не нужно закупать продукты, считать граммы и готовить.",
       "benefits.3.t": "Подбор под питомца",
       "benefits.3.d": "Учитываем основные параметры питомца, когда подбираем рацион.",
+      "benefits.4.t": "Доставка по Тбилиси",
+      "benefits.4.d": "Привозим заказ прямо домой — никуда ехать не нужно.",
 
       "how.title": `Как работает ${HL("Pawology")}`,
       "how.1.t": "Подбираем рацион",
@@ -139,11 +144,14 @@
       "pet.cat": "Cat",
 
       "hero.h1": "Pawology — natural food for dogs and cats, delivered across Tbilisi",
-      "hero.tag": "Ready-made meals · delivery in Tbilisi",
-      "hero.for": { dog: "for your dog", cat: "for your cat" },
+      "hero.title": "Natural meals for cats and dogs",
+      "hero.sub": "delivered across Tbilisi",
+      "hero.promo": '<span class="badge">−50%</span> off your first order',
+      "pet.forDogs": "For dogs",
+      "pet.forCats": "For cats",
 
-      "intro.title": `<b>Natural</b> ${HL("food")} for cats and dogs, delivered across Tbilisi`,
-      "intro.sub": "Ready-made, portioned meals — we’ll find the right plan for your pet and bring it to your door.",
+      "intro.title": `A meal plan made ${HL("just for your")} pet`,
+      "intro.sub": "Answer a few questions about your pet and we’ll put together a plan that suits them perfectly.",
       "intro.note": "2 minutes · no sign-up",
 
       "benefits.title": `Why it’s so ${HL("easy")}`,
@@ -154,6 +162,8 @@
       "benefits.2.d": "No grocery runs, no weighing grams, no cooking.",
       "benefits.3.t": "Tailored to your pet",
       "benefits.3.d": "We take your pet’s key details into account when choosing a plan.",
+      "benefits.4.t": "Delivery in Tbilisi",
+      "benefits.4.d": "We bring your order right to your door.",
 
       "how.title": `How ${HL("Pawology")} works`,
       "how.1.t": "We find the plan",

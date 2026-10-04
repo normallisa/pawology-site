@@ -42,14 +42,14 @@
   --t-theme: .8s;
 
   /* Размеры */
-  --hdr-h: 64px;
+  --hdr-h: 60px;
   --gutter: 12px;
   --shadow-soft: 0 10px 30px -12px rgba(35, 48, 30, .18);
 }
 
 @media (min-width: 1024px) {
   :root {
-    --hdr-h: 88px;
+    --hdr-h: 80px;
     --gutter: 16px;
   }
 }

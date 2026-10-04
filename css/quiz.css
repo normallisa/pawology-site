@@ -45,7 +45,7 @@
   max-width: 680px; margin: 0 auto 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
-.quiz__step-count { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.quiz__step-count { display: none; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .quiz__stage { max-width: 680px; margin: 0 auto; }
 
 /* ---------- Низ: назад / далее ---------- */
@@ -73,28 +73,28 @@
 @keyframes q-in { from { opacity: 0; transform: translateY(18px); } }
 
 .q-title {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(26px, 5vw, 40px); line-height: 1.12; letter-spacing: -.035em;
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(26px, 5vw, 44px); line-height: 1.12; letter-spacing: -.035em;
 }
 .q-sub { margin-top: 10px; color: var(--ink-2); }
 
-.q-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; margin-top: 32px; }
+.q-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 24px; }
 .q-group { min-width: 0; }
 .q-group__label { display: block; margin-bottom: 12px; font-weight: 700; font-size: 15px; }
 .q-group__hint { font-weight: 500; color: var(--ink-3); }
 
-.q-inputs { display: grid; gap: 10px; }
-@media (min-width: 640px) { .q-inputs { grid-template-columns: 1fr 1fr; } }
+.q-inputs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media (min-width: 640px) { .q-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* поле с единицами (лет / мес, кг) */
-.field--unit input { padding-right: 116px; }
+.field--unit input { padding-right: 96px; }
 .field__suffix { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: var(--ink-3); font-weight: 700; }
 .q-seg {
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
   display: inline-flex; padding: 3px; border-radius: var(--r-pill); background: var(--page);
 }
 .q-seg button {
-  height: 34px; padding: 0 12px; border-radius: var(--r-pill);
+  height: 32px; padding: 0 9px; border-radius: var(--r-pill);
   font-size: 13px; font-weight: 700; color: var(--ink-3);
   transition: background-color .3s, color .3s;
 }
@@ -197,4 +197,20 @@
   .quiz__nav { padding-bottom: 28px; }
   .q-plan { padding: 32px; }
   .q-plan img { width: 200px; }
+}
+
+/* шаг-счётчик и переключатель */
+.quiz__meta { margin-bottom: 16px; }
+@media (min-width: 560px) { .quiz__step-count { display: inline; } }
+/* невысокие экраны: всё помещается в один экран */
+@media (max-height: 720px) {
+  .quiz__top { padding-top: 10px; padding-bottom: 8px; }
+  .q-title { font-size: 24px; }
+  .q-sub { margin-top: 6px; font-size: 14px; }
+  .field input { height: 56px; padding-top: 22px; }
+  .q-fields { gap: 18px; margin-top: 18px; }
+  .q-opt { min-height: 54px; }
+  .quiz__nav { padding-top: 8px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .quiz__back { width: 54px; height: 54px; }
+  .quiz__next { min-height: 54px; }
 }
