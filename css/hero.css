@@ -1,0 +1,179 @@
+/* ============ Hero (Screen 1) ============ */
+.hero { padding: 0 var(--gutter); }
+
+.hero__card {
+  --s: 1;                         /* масштаб от скролла (hero.js) */
+  position: relative; overflow: hidden; isolation: isolate;
+  height: calc(100svh - var(--hdr-h) - var(--gutter));
+  min-height: 580px; max-height: 960px;
+  border-radius: var(--r-xl);
+  background-color: var(--card);
+  transform: scale(var(--s)); transform-origin: 50% 0;
+  will-change: transform;
+}
+/* «шторка» старого цвета: при смене питомца уезжает вверх и открывает новый */
+.hero__wash {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  clip-path: inset(0 0 100% 0);
+}
+.hero__wash.is-running { animation: wash 1s var(--ease-in-out) forwards; }
+@keyframes wash {
+  from { clip-path: inset(0 0 0 0 round 0 0 50% 50% / 0 0 0 0); }
+  to   { clip-path: inset(0 0 100% 0 round 0 0 50% 50% / 0 0 80px 80px); }
+}
+.hero__card::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(80% 60% at 50% 90%, rgba(255, 255, 255, .22), transparent 70%),
+    linear-gradient(180deg, rgba(0, 0, 0, .05), transparent 35%);
+}
+.hero__card.is-switching { animation: hero-squeeze .95s var(--ease-in-out); }
+@keyframes hero-squeeze {
+  0%, 100% { transform: scale(var(--s)); }
+  40% { transform: scale(calc(var(--s) * .965)); border-radius: 44px; }
+}
+
+/* ---------- Вордмарк за питомцем ---------- */
+.hero__head {
+  position: absolute; left: 50%; top: 22px; z-index: 0;
+  width: calc(100% - 36px);
+  transform: translate(-50%, calc(var(--p, 0) * 60px));
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.hero__word { display: grid; width: 100%; }
+.hero__word img { grid-area: 1 / 1; width: 100%; height: auto; }
+.hero__word-letters { filter: drop-shadow(0 4px 24px rgba(0, 0, 0, .06)); }
+.hero__word-paw { transition: filter var(--t-theme) var(--ease-in-out); }
+/* на «кошачьей» розовой карточке лапка становится зелёной */
+body[data-pet="cat"] .hero__word-paw { filter: hue-rotate(102deg) saturate(.62) brightness(.78); }
+
+.hero__tag {
+  padding: 8px 14px; border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .2);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-align: center;
+  white-space: nowrap;
+}
+
+/* загрузка без лоадера: мягкий подъём */
+.hero__word { animation: rise 1.2s var(--ease-out) .05s both; }
+.hero__tag { animation: rise 1.2s var(--ease-out) .25s both; }
+@keyframes rise { from { opacity: 0; transform: translateY(40px); } }
+
+/* ---------- Питомцы ---------- */
+.hero__pets {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  transform: translateY(calc(var(--p, 0) * 6%));
+}
+.hero__pet {
+  position: absolute; left: 50%; bottom: 0;
+  height: 60%; width: auto; max-width: none;
+  transform: translate(-50%, 108%);
+  transition: transform .55s cubic-bezier(.7, 0, .84, 0);
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .12));
+}
+.hero__pet--cat { height: 57%; }
+/* у фото собаки обрезан край справа (рука) — растворяем его */
+.hero__pet--dog {
+  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent 99%);
+          mask-image: linear-gradient(90deg, #000 78%, transparent 99%);
+}
+.hero .pet-toggle { --size: 46px; }
+body.is-ready[data-pet="dog"] .hero__pet--dog,
+body.is-ready[data-pet="cat"] .hero__pet--cat {
+  transform: translate(-50%, 0);
+  transition: transform 1s var(--ease-out) .32s;
+}
+
+/* ---------- Дудлы ---------- */
+.hero__doodle {
+  position: absolute; z-index: 2; overflow: visible; pointer-events: none;
+  fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round;
+}
+.hero__doodle path { --len: 120; stroke-dasharray: var(--len); stroke-dashoffset: var(--len); }
+body.is-ready .hero__doodle path { animation: draw .9s var(--ease-out) forwards; }
+.hero__doodle--sticks { width: 62px; left: 7%; top: 44%; stroke-width: 5; animation: wiggle 3.2s ease-in-out infinite; }
+.hero__doodle--sticks path:nth-child(1) { animation-delay: .9s !important; }
+.hero__doodle--sticks path:nth-child(2) { animation-delay: 1.02s !important; }
+.hero__doodle--sticks path:nth-child(3) { animation-delay: 1.14s !important; }
+.hero__doodle--heart { width: 42px; right: 9%; top: 34%; stroke-width: 3.5; animation: float 4.5s ease-in-out infinite; }
+.hero__doodle--heart path { --len: 180; animation-delay: 1.3s !important; }
+
+/* после первой отрисовки — статично (hero.js добавляет .is-drawn) */
+.hero__card.is-drawn .hero__doodle path { animation: none; stroke-dashoffset: 0; }
+/* при смене питомца дудлы рисуются заново */
+.hero__card.is-switching .hero__doodle path { animation: redraw 1.2s var(--ease-out) both !important; }
+.hero__card.is-switching .hero__doodle--sticks path:nth-child(2) { animation-delay: .08s !important; }
+.hero__card.is-switching .hero__doodle--sticks path:nth-child(3) { animation-delay: .16s !important; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes redraw { 0%, 30% { stroke-dashoffset: var(--len); } 100% { stroke-dashoffset: 0; } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(-7deg) scale(1.06); } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-10px) rotate(6deg); } }
+
+/* ---------- Нижняя панель: CTA + выбор питомца ---------- */
+.hero__bottom {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 8px;
+  animation: rise 1s var(--ease-out) .6s both;
+}
+
+.hero__cta {
+  flex: 1 1 auto; min-width: 0; max-width: 380px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 58px; padding: 6px 6px 6px 18px;
+  border-radius: var(--r-pill); background: #fff;
+  box-shadow: var(--shadow-soft); text-align: left;
+  transition: transform .35s var(--ease-out);
+}
+.hero__cta:active { transform: scale(.97); }
+.hero__cta-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.hero__cta-kicker { font-size: 12px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.hero__cta-main { font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+@media (min-width: 400px) { .hero__cta-main { font-size: 15px; } }
+.hero__cta-text.is-swapping .hero__cta-kicker { animation: swap .6s var(--ease-out); }
+@keyframes swap { 0% { opacity: 0; transform: translateY(100%); } }
+
+.hero__cta-arrow {
+  display: grid; place-items: center; flex: none;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  transition: background-color var(--t-theme) var(--ease-in-out);
+}
+.hero__cta-arrow svg { width: 22px; height: 22px; transition: transform .4s var(--ease-out); }
+.hero__cta:hover .hero__cta-arrow svg { transform: translateX(4px); }
+
+/* ---------- Tablet / Desktop ---------- */
+@media (min-width: 768px) {
+  .hero__head { top: 36px; width: calc(100% - 80px); }
+  .hero__pet { height: 74%; }
+  .hero__pet--cat { height: 70%; }
+  .hero__doodle--sticks { width: 84px; left: calc(50% - 330px); top: 46%; }
+  .hero__doodle--heart { width: 52px; right: calc(50% - 330px); top: 50%; }
+  .hero__bottom { left: 20px; right: 20px; bottom: 20px; }
+  .hero__tag { font-size: 13px; }
+  .hero .pet-toggle { --size: 52px; }
+  .hero__cta { min-height: 64px; padding: 8px 8px 8px 22px; }
+}
+
+@media (min-width: 1024px) {
+  .hero { padding: var(--gutter); }
+  .hero__card { height: calc(100svh - 2 * var(--gutter)); min-height: 640px; max-height: 1100px; }
+  .hero__head { top: calc(var(--hdr-h) + 8px); width: min(82%, 1200px); gap: 18px; align-items: flex-start; }
+  .hero__tag { margin-left: .6%; }
+  .hero__pet { height: 80%; }
+  .hero__pet--cat { height: 74%; }
+  .hero__doodle--sticks { width: 96px; left: calc(50% - 400px); top: 48%; stroke-width: 4.5; }
+  .hero__doodle--heart { width: 60px; right: calc(50% - 440px); top: 58%; }
+  .hero__bottom { left: 28px; right: 28px; bottom: 28px; }
+  .hero__cta { min-height: 72px; padding: 10px 10px 10px 28px; }
+  .hero__cta-main { font-size: 17px; }
+  .hero__cta-kicker { font-size: 13px; }
+  .hero__cta-arrow { width: 52px; height: 52px; }
+  .hero .pet-toggle { --size: 60px; }
+}
+
+/* очень низкие экраны (горизонтальный телефон) */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero__card { min-height: 520px; }
+}

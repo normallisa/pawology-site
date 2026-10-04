@@ -1,0 +1,36 @@
+/* ============ How it works ============ */
+.how { padding: 72px 0 110px; background: #fff; }
+
+.how__steps { position: relative; display: grid; gap: 12px; margin-top: 44px; counter-reset: step; }
+
+.how__step {
+  position: relative;
+  padding: 28px 24px 28px 96px; border-radius: var(--r-lg);
+  border: 1.5px solid var(--line);
+  background: #fff;
+}
+.how__num {
+  position: absolute; left: 24px; top: 26px;
+  font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; letter-spacing: -.04em;
+  color: var(--accent);
+  transition: color var(--t-theme) var(--ease-in-out);
+}
+.how__step h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: 18px; line-height: 1.25; }
+.how__step p { margin-top: 8px; color: var(--ink-2); font-size: 15px; }
+
+.how__cta { display: flex; justify-content: center; margin-top: 40px; }
+.how__cta .btn-accent { min-width: 300px; }
+
+@media (min-width: 900px) {
+  .how { padding: 100px 0 150px; }
+  .how__steps { grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 64px; }
+  /* пунктир, соединяющий шаги */
+  .how__steps::before {
+    content: ""; position: absolute; left: 8%; right: 8%; top: 62px; height: 0;
+    border-top: 2px dashed var(--line);
+  }
+  .how__step { padding: 36px 32px 40px; }
+  .how__num { position: static; display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent-soft); font-size: 22px; margin-bottom: 28px; transition: color var(--t-theme), background-color var(--t-theme); }
+  .how__step h3 { font-size: 21px; }
+  .how__cta { margin-top: 56px; }
+}
