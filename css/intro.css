@@ -56,13 +56,13 @@
 
 @media (min-width: 768px) {
   .intro { padding: 120px 40px 150px; }
-  .intro__bowl { position: absolute; margin: 0; width: 200px; right: 3%; top: 30px; }
+  .intro__bowl { position: absolute; margin: 0; width: 160px; right: 2%; top: 16px; }
   .intro__sub { font-size: 17px; }
 }
 
 @media (min-width: 1024px) {
   .intro { padding: 160px 40px 180px; }
-  .intro__bowl { width: 250px; right: 5%; top: 50px; }
+  .intro__bowl { width: 210px; right: 3%; top: 24px; }
 
   /* одна строка: поля через разделители + кнопка справа */
   .quiz-bar {
