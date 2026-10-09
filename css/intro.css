@@ -2,7 +2,7 @@
 .intro {
   position: relative;
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: 44px 20px 110px;
+  padding: 44px 20px 56px;
   overflow-x: clip;   /* по вертикали мясо может «выходить» за секцию */
   z-index: 1;
 }
@@ -46,7 +46,7 @@
 .quiz-bar__submit .btn-accent__arrow { width: 46px; height: 46px; }
 
 @media (min-width: 768px) {
-  .intro { padding: 48px 40px 140px; }
+  .intro { padding: 48px 40px 64px; }
   .intro__sub { font-size: 18px; }
   .intro-f1 { width: 70px; left: 12%; top: 40px; }
   .intro-f2 { width: 150px; right: 6%; top: 30%; }
@@ -54,7 +54,7 @@
 }
 
 @media (min-width: 1024px) {
-  .intro { padding: 40px 40px 170px; }
+  .intro { padding: 40px 40px 72px; }
   .intro-f2 { width: 180px; right: 9%; top: 38%; }
 
   /* одна строка: поля через разделители + кнопка справа */

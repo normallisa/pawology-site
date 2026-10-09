@@ -1,7 +1,7 @@
 /* ============ Screen 3 · боул + плашки вокруг (по мотивам референса) ============ */
 .benefits {
   position: relative; overflow: hidden;
-  padding: 80px 0 72px;
+  padding: 40px 0 72px;
   background: var(--page);
 }
 .benefits .section-title { padding: 0 20px; }
@@ -61,7 +61,7 @@
 
 /* ---------- Desktop: плашки вокруг боула ---------- */
 @media (min-width: 1024px) {
-  .benefits { padding: 110px 0 100px; }
+  .benefits { padding: 48px 0 100px; }
   .benefits__stage { display: block; height: 720px; max-width: 1240px; margin: 20px auto 0; padding: 0; }
   .benefits__swoosh { left: 50%; translate: -50% 0; width: 100vw; top: 0; height: 100%; }
   .benefits__swoosh path { stroke-width: 110; }

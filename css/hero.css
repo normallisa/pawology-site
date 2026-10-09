@@ -138,13 +138,13 @@ body.is-ready .hero__heart path { animation: draw 1.2s var(--ease-out) 1.3s forw
 }
 .hero__cta { transition: transform .35s var(--ease-out), background-color .35s ease, color .35s ease, box-shadow .35s ease; }
 .hero__cta:active { transform: scale(.97); }
-/* наведение (на телефоне — нажатие): кнопка становится полупрозрачной в цвет бренда, кружок со стрелкой не меняется */
+/* наведение (на телефоне — нажатие): кнопка заливается мягким цветом бренда, кружок со стрелкой не меняется */
 @media (hover: hover) {
-  .hero__cta:hover { background: rgba(125, 164, 104, .72); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .55); }
-  body[data-pet="cat"] .hero__cta:hover { background: rgba(255, 132, 132, .72); }
+  .hero__cta:hover { background: #9BBD88; color: #fff; }
+  body[data-pet="cat"] .hero__cta:hover { background: #FF9E9A; }
 }
-.hero__cta:active { background: rgba(125, 164, 104, .72); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .55); }
-body[data-pet="cat"] .hero__cta:active { background: rgba(255, 132, 132, .72); }
+.hero__cta:active { background: #9BBD88; color: #fff; }
+body[data-pet="cat"] .hero__cta:active { background: #FF9E9A; }
 .hero__cta-arrow {
   display: grid; place-items: center; flex: none;
   width: 46px; height: 46px; border-radius: 50%;
