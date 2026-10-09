@@ -100,10 +100,8 @@
   .header__nav a:hover::after { transform: scaleX(1); transform-origin: left; }
 
   .header__actions { gap: 12px; }
-  .header__cta { display: inline-flex; height: 42px; background: #fff; color: var(--ink); }
-  .header__cta:hover { background: var(--ink); color: #fff; }
-  .header.is-solid .header__cta { background: var(--accent-deep); color: #fff; }
-  .header.is-solid .header__cta:hover { background: var(--ink); }
+  .header__cta { display: inline-flex; height: 42px; background: var(--orange); color: #fff; }
+  .header__cta:hover { background: var(--orange-deep); }
 
   .lang-switch { background: rgba(255, 255, 255, .22); border-color: transparent; }
   .lang-switch button[aria-pressed="true"] { box-shadow: 0 0 0 2px #fff; }

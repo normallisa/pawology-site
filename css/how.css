@@ -11,9 +11,9 @@
 }
 .how__num {
   position: absolute; left: 24px; top: 26px;
-  font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; letter-spacing: -.04em;
-  color: var(--accent);
-  transition: color var(--t-theme) var(--ease-in-out);
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent-soft); font-size: 26px; line-height: 1;
+  transition: background-color var(--t-theme) var(--ease-in-out);
 }
 .how__step h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: 18px; line-height: 1.25; }
 .how__step p { margin-top: 8px; color: var(--ink-2); font-size: 15px; }
@@ -30,7 +30,7 @@
     border-top: 2px dashed var(--line);
   }
   .how__step { padding: 36px 32px 40px; }
-  .how__num { position: static; display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent-soft); font-size: 22px; margin-bottom: 28px; transition: color var(--t-theme), background-color var(--t-theme); }
+  .how__num { position: static; display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent-soft); font-size: 30px; margin-bottom: 28px; transition: background-color var(--t-theme); }
   .how__step h3 { font-size: 21px; }
   .how__cta { margin-top: 56px; }
 }

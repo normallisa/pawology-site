@@ -88,6 +88,19 @@ body.is-ready .hero__doodle path { animation: draw .9s var(--ease-out) forwards;
 .hero__doodle path:nth-child(2) { animation-delay: 1.02s !important; }
 .hero__doodle path:nth-child(3) { animation-delay: 1.14s !important; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* сердечко «маркером» справа от питомца */
+.hero__heart {
+  position: absolute; z-index: 2; width: 42px; left: 84%; top: 50%;
+  fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; overflow: visible;
+  rotate: 12deg;
+  animation: heart-beat 2.8s ease-in-out infinite 2.4s;
+}
+.hero__heart path { stroke-dasharray: 260; stroke-dashoffset: 260; }
+body.is-ready .hero__heart path { animation: draw 1.2s var(--ease-out) 1.3s forwards; }
+.hero__card.is-switching .hero__heart path { animation: heart-redraw 1.4s var(--ease-out) forwards; }
+@keyframes heart-redraw { 0%, 25% { stroke-dashoffset: 260; } 100% { stroke-dashoffset: 0; } }
+@keyframes heart-beat { 0%, 70%, 100% { transform: scale(1); } 78% { transform: scale(1.14); } 86% { transform: scale(.96); } 92% { transform: scale(1.08); } }
 @keyframes wiggle { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(-7deg) scale(1.06); } }
 
 /* ---------- Текст + действия ---------- */
@@ -123,7 +136,15 @@ body.is-ready .hero__doodle path { animation: draw .9s var(--ease-out) forwards;
   box-shadow: var(--shadow-soft);
   transition: transform .35s var(--ease-out);
 }
+.hero__cta { transition: transform .35s var(--ease-out), background-color .35s ease, color .35s ease, box-shadow .35s ease; }
 .hero__cta:active { transform: scale(.97); }
+/* наведение (на телефоне — нажатие): кнопка становится полупрозрачной в цвет бренда, кружок со стрелкой не меняется */
+@media (hover: hover) {
+  .hero__cta:hover { background: rgba(125, 164, 104, .72); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .55); }
+  body[data-pet="cat"] .hero__cta:hover { background: rgba(255, 132, 132, .72); }
+}
+.hero__cta:active { background: rgba(125, 164, 104, .72); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .55); }
+body[data-pet="cat"] .hero__cta:active { background: rgba(255, 132, 132, .72); }
 .hero__cta-arrow {
   display: grid; place-items: center; flex: none;
   width: 46px; height: 46px; border-radius: 50%;
@@ -167,4 +188,5 @@ body.is-ready .hero__doodle path { animation: draw .9s var(--ease-out) forwards;
   .hero-f4 { width: 92px; left: 50%; top: 70%; }
   .hero-f5 { width: 260px; right: -60px; bottom: -50px; }
   .hero__doodle { width: 84px; left: 49%; top: 40%; stroke-width: 4.5; }
+  .hero__heart { width: 66px; left: 88%; top: 42%; stroke-width: 4.5; }
 }
