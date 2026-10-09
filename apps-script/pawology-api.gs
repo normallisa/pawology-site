@@ -20,7 +20,14 @@ const LEADS_SHEET = 'Заявки с сайта';
 const PERIODS = [7, 30];            // какие сроки показываем на сайте
 const HIDE_RECIPE_MARK = 'индивидуальный';
 const NO_NECKS_MARK = 'без шей';
-const GRAINS_LINES = ['Pawfect Balance']; // линейки с крупами (рис, гречка)
+// Какую линейку предлагаем: собакам — Pawfect Balance (в нём крупы: рис, гречка),
+// при аллергии на крупы — Let's Meat; кошкам — их линейка Let's Meat кошки.
+const DOG_LINE = 'Pawfect Balance';
+const DOG_LINE_NO_GRAINS = "Let's Meat";
+// First Bite — собакам, которые сейчас на готовом корме или варёной натуралке
+const FIRST_BITE_FOODS = ['ready', 'cooked'];
+const FIRST_BITE_SHEET = 'First Bite';
+const FIRST_BITE_NO_GRAINS_SHEET = 'First Bite без круп';
 
 /* ------------------------------ HTTP ------------------------------ */
 
@@ -96,7 +103,7 @@ function calc_(inp) {
     // «без шей» показываем только при аллергии на курицу
     // (обычные рецепты с шеями тогда отсеются по аллергену «Курица» ниже)
     if (!chickenAllergy && r.flavor.indexOf(NO_NECKS_MARK) >= 0) return false;
-    if (noGrains && GRAINS_LINES.indexOf(r.line) >= 0) return false;
+    if (inp.pet === 'Собака' && r.line !== (noGrains ? DOG_LINE_NO_GRAINS : DOG_LINE)) return false;
     return !r.allergens.some(function (a) { return excluded.indexOf(a) >= 0; });
   }).map(function (r) {
     const pack = packPerDay_(grams, s);
@@ -109,13 +116,14 @@ function calc_(inp) {
     return { name: r.name, line: r.line, flavor: r.flavor, gramsPerDay: grams, prices: prices };
   });
 
-  // First Bite: только собакам на готовом корме
+  // First Bite: собакам на готовом корме или варёной натуралке; при аллергии на крупы — лист без круп
   let firstBite = [];
-  if (inp.pet === 'Собака' && inp.food === 'ready' && !noGrains) {
-    firstBite = firstBite_(ss, s, grams).filter(function (f) {
+  if (inp.pet === 'Собака' && FIRST_BITE_FOODS.indexOf(inp.food) >= 0) {
+    const sheet = noGrains ? FIRST_BITE_NO_GRAINS_SHEET : FIRST_BITE_SHEET;
+    firstBite = firstBite_(ss, s, grams, sheet).filter(function (f) {
       return excluded.indexOf(f.allergen) < 0;
     }).map(function (f) {
-      return { name: 'First Bite · ' + f.flavor, line: 'First Bite', flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: { 14: f.price } };
+      return { name: sheet + ' · ' + f.flavor, line: sheet, flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: { 14: f.price } };
     });
   }
 
@@ -193,8 +201,10 @@ function catalog_(ss) {
 }
 
 /** First Bite: этапы, доли, цены продуктов — как на листе «First Bite». */
-function firstBite_(ss, s, normGrams) {
-  const v = ss.getSheetByName('First Bite').getDataRange().getValues();
+function firstBite_(ss, s, normGrams, sheetName) {
+  const sh = ss.getSheetByName(sheetName);
+  if (!sh) throw new Error('Не найден лист: ' + sheetName);
+  const v = sh.getDataRange().getValues();
   const findRow = function (pred, from) {
     for (let i = from || 0; i < v.length; i++) if (pred(v[i])) return i;
     return -1;
@@ -242,9 +252,9 @@ function firstBite_(ss, s, normGrams) {
 function saveLead_(body, inp, grams, price) {
   const ss = SpreadsheetApp.getActive();
   let sh = ss.getSheetByName(LEADS_SHEET);
-  const header = ['Дата', 'Имя клиента', 'Контакт', 'Как связаться', 'Вид', 'Кличка', 'Порода', 'Возраст', 'Вес, кг',
-    'Активность', 'Стерилизация', 'Аллергия или не любит', 'Есть заболевание', 'Сейчас ест', 'Граммовка в день, г',
-    'Выбранный рацион', 'Период, дн.', 'Цена, ₾', 'Язык сайта'];
+  const header = ['Дата', 'Имя клиента', 'Телефон', 'Ссылка для связи', 'Адрес', 'Вид', 'Кличка', 'Порода', 'Возраст', 'Вес, кг',
+    'Активность', 'Стерилизация', 'Аллергия или не любит', 'Есть заболевание', 'Сейчас ест', 'О питомце',
+    'Граммовка в день, г', 'Выбранный рацион', 'Период, дн.', 'Цена, ₾', 'Язык сайта'];
   if (!sh) {
     sh = ss.insertSheet(LEADS_SHEET);
     sh.appendRow(header);
@@ -259,16 +269,15 @@ function saveLead_(body, inp, grams, price) {
     chicken: 'курица', beef: 'говядина', fish: 'рыба', pumpkin: 'тыква', broccoli: 'брокколи',
     zucchini: 'кабачок', grains: 'крупы', none: 'нет',
     ready: 'готовый корм', homemade: 'готовит сам(а)', cooked: 'варёная натуралка',
-    whatsapp: 'WhatsApp', telegram: 'Telegram', call: 'звонок',
   };
   const ru = function (x) { return RU[x] || x || ''; };
-  const clean = function (x) { return String(x == null ? '' : x).slice(0, 200).replace(/^[=+\-@]/, "'$&"); };
+  const clean = function (x, max) { return String(x == null ? '' : x).slice(0, max || 200).replace(/^[=+\-@]/, "'$&"); };
   sh.appendRow([
-    new Date(), clean(c.name), clean(c.value), ru(c.channel),
+    new Date(), clean(c.name), clean(c.phone), clean(c.link), clean(c.address, 400),
     inp.pet, clean(a.name), clean(a.breed),
     a.age ? clean(a.age) + ' ' + (a.ageUnit === 'months' ? 'мес' : 'лет') : '',
     inp.weight, inp.activity, ru(a.sterilized), (a.allergies || []).map(ru).join(', '),
-    a.disease ? 'да' : '', ru(a.food), grams,
+    a.disease ? 'да' : '', ru(a.food), clean(c.about, 1500), grams,
     clean(body.ration), clean(body.period), price, clean(body.lang),
   ]);
 }

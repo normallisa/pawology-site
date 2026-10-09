@@ -131,6 +131,8 @@
     stage.querySelectorAll("[data-combo-src]").forEach((inp) => Combo.attach(inp, () => breedNames()));
 
     const isResult = step.type === "result";
+    // на финальном экране переключатель собака/кошка не нужен
+    root.querySelector(".quiz__meta .pet-switch").hidden = isResult;
     if (isResult) Results.mount(stage.querySelector("#q-result-body"), updateNext);
     const n = Math.min(index + 1, QUESTION_STEPS);
     count.textContent = isResult ? t("quiz.done") : t("quiz.step", { n, total: QUESTION_STEPS });

@@ -276,3 +276,16 @@
 .r-done { margin-top: 32px; text-align: center; }
 .r-done__icon { font-size: 48px; }
 .r-done h3 { margin-top: 10px; font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+
+/* форма заказа */
+.r-form__fields { display: grid; gap: 10px; margin-top: 14px; }
+.field--area textarea {
+  width: 100%; min-height: 104px; padding: 28px 20px 12px; resize: vertical;
+  border: 1.5px solid var(--line); border-radius: var(--r-md); background: #fff; color: var(--ink);
+  font: 500 16px/1.4 var(--font-body);
+}
+.field--area textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.field--area label { top: 22px; }
+.field--area textarea:focus + label, .field--area textarea:not(:placeholder-shown) + label { transform: translateY(-60%) scale(.78); color: var(--ink-2); }
+.r-form__hint { margin-top: -2px; font-size: 13px; color: var(--ink-3); }
+.quiz__meta .pet-switch[hidden] { display: none; }

@@ -6,7 +6,7 @@
 (function () {
   const API = () => (window.PAWOLOGY_API_URL || "").trim();
   const cache = {};
-  let st = { status: "idle", key: "", data: null, selected: null, contact: { channel: "whatsapp", name: "", value: "" } };
+  let st = { status: "idle", key: "", data: null, selected: null, contact: { name: "", phone: "", link: "", address: "", about: "" } };
   let el = null;
   let notify = () => {};
 
@@ -76,19 +76,20 @@
 
   function contactForm() {
     const c = st.contact;
-    const ph = t("res.ph." + c.channel);
+    const input = (k, type, ac, max) =>
+      `<div class="field"><input id="r-${k}" data-contact="${k}" type="${type}" placeholder=" " maxlength="${max}" value="${esc(c[k])}" autocomplete="${ac}"><label for="r-${k}">${t("res.f." + k)}</label></div>`;
     return `<div class="r-form q-anim" style="--i:3">
       <h3 class="r-form__title">${t("res.form.title")}</h3>
-      <p class="q-sub">${t("res.form.sub")}</p>
-      <div class="q-choice r-form__channels" role="radiogroup">
-        ${["whatsapp", "telegram", "call"].map((ch) => `
-          <button type="button" class="q-opt" role="radio" data-channel="${ch}" aria-checked="${c.channel === ch}">
-            <span>${t("res.ch." + ch)}</span>
-          </button>`).join("")}
-      </div>
-      <div class="q-inputs">
-        <div class="field"><input id="r-name" data-contact="name" type="text" placeholder=" " maxlength="60" value="${esc(c.name)}" autocomplete="name"><label for="r-name">${t("res.f.name")}</label></div>
-        <div class="field"><input id="r-value" data-contact="value" type="${c.channel === "telegram" ? "text" : "tel"}" placeholder=" " maxlength="60" value="${esc(c.value)}" autocomplete="${c.channel === "telegram" ? "off" : "tel"}"><label for="r-value">${ph}</label></div>
+      <div class="r-form__fields">
+        ${input("name", "text", "name", 60)}
+        ${input("phone", "tel", "tel", 30)}
+        ${input("link", "text", "off", 120)}
+        ${input("address", "text", "street-address", 200)}
+        <div class="field field--area">
+          <textarea id="r-about" data-contact="about" placeholder=" " maxlength="1500" rows="3">${esc(c.about)}</textarea>
+          <label for="r-about">${t("res.f.about")}</label>
+        </div>
+        <p class="r-form__hint">${t("res.f.aboutHint")}</p>
       </div>
       <input class="r-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>`;
@@ -99,7 +100,7 @@
     const a = A();
     if (st.status === "sent") {
       el.innerHTML = `<div class="r-done q-anim"><div class="r-done__icon">💌</div>
-        <h3>${t("res.sent.title")}</h3><p class="q-sub">${t("res.sent.sub." + st.contact.channel)}</p></div>`;
+        <h3>${t("res.sent.title")}</h3><p class="q-sub">${t("res.sent.sub")}</p></div>`;
       return notify();
     }
     if (st.status === "nokey") {
@@ -125,11 +126,11 @@
         <span>${t("res.portion", { g: d.gramsPerDay, name: esc((a.name || "").trim()) })}</span>
       </div>
       ${a.disease ? `<p class="r-note r-note--soft q-anim">${t("res.disease")}</p>` : ""}
-      ${fb.length ? `<h3 class="r-h q-anim">${t("res.fb.title")}</h3><p class="q-sub r-h__sub">${t("res.fb.sub")}</p>
-        <ul class="r-list">${fb.map(card).join("")}</ul>` : ""}
       ${list.length
-        ? `<h3 class="r-h q-anim">${t(fb.length ? "res.list.after" : "res.list.title")}</h3><ul class="r-list">${list.map((r, i) => card(r, i + fb.length)).join("")}</ul>`
+        ? `<h3 class="r-h q-anim">${t("res.list.title", { line: esc(tr(list[0].line)) })}</h3><ul class="r-list">${list.map(card).join("")}</ul>`
         : `<p class="r-note q-anim">${t("res.empty")}</p>`}
+      ${fb.length ? `<h3 class="r-h q-anim">${t("res.fb.title")}</h3><p class="q-sub r-h__sub">${t("res.fb.sub")}</p>
+        <ul class="r-list">${fb.map((r, i) => card(r, i + list.length)).join("")}</ul>` : ""}
       ${contactForm()}`;
     notify();
   }
@@ -146,15 +147,6 @@
           b.setAttribute("aria-pressed", String(!!on));
           b.closest(".r-card").classList.toggle("is-picked", !!(st.selected && b.dataset.ration === st.selected.name));
         });
-        return notify();
-      }
-      const ch = e.target.closest("[data-channel]");
-      if (ch) {
-        st.contact.channel = ch.dataset.channel;
-        el.querySelectorAll("[data-channel]").forEach((b) => b.setAttribute("aria-checked", String(b === ch)));
-        const inp = el.querySelector("#r-value");
-        inp.type = ch.dataset.channel === "telegram" ? "text" : "tel";
-        el.querySelector('label[for="r-value"]').textContent = t("res.ph." + ch.dataset.channel);
         return notify();
       }
       if (e.target.closest("[data-retry]")) { st.key = ""; load(); }
@@ -179,7 +171,8 @@
       if (st.status !== "ready") return false;
       const hasList = (st.data.rations || []).length + (st.data.firstBite || []).length > 0;
       const c = st.contact;
-      return (!hasList || !!st.selected) && c.name.trim().length > 1 && c.value.replace(/\s/g, "").length >= 5;
+      return (!hasList || !!st.selected) && c.name.trim().length > 1
+        && c.phone.replace(/\D/g, "").length >= 7 && c.address.trim().length >= 5;
     },
     isSent: () => st.status === "sent",
     async submit() {
