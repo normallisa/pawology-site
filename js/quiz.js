@@ -57,7 +57,8 @@
 
     multi(f) {
       const sel = A()[f.name] || [];
-      return group(f, `<div class="q-chips">${f.options.map((o, i) => `
+      const opts = f.options.filter((o) => !o.pets || o.pets.includes(Store.get().pet));
+      return group(f, `<div class="q-chips">${opts.map((o, i) => `
         <button type="button" class="q-opt q-anim ${o.wide ? "q-opt--wide" : ""}" style="--i:${i}" data-multi="${f.name}" data-value="${o.value}"
           aria-pressed="${sel.includes(o.value)}">
           <span class="q-opt__icon">${byPet(o.icon)}</span>
@@ -86,7 +87,7 @@
           <span class="q-opt__icon">${byPet(o.icon)}</span>
           <span class="q-opt__text">
             <span class="q-opt__title">${t(`quiz.opt.${f.name}.${o.value}`)}
-              <span class="q-meter" aria-hidden="true">${[1, 2, 3].map((n) => `<i class="${n <= o.level ? "on" : ""}"></i>`).join("")}</span>
+              ${o.level ? `<span class="q-meter" aria-hidden="true">${[1, 2, 3].map((n) => `<i class="${n <= o.level ? "on" : ""}"></i>`).join("")}</span>` : ""}
             </span>
             <span class="q-opt__desc">${t(`quiz.desc.${f.name}.${o.value}`)}</span>
           </span>
@@ -110,15 +111,7 @@
     if (a.activity) chips.push(t("quiz.opt.activity." + a.activity));
     return `<div class="q-result">
       <div class="q-summary q-anim">${chips.map((c) => `<span>${c}</span>`).join("")}</div>
-      <div class="q-plan q-anim" style="--i:1">
-        <div class="q-plan__body">
-          <div class="q-plan__label">${t("quiz.result.label")}</div>
-          <div class="q-plan__title">${t("quiz.result.plan")}</div>
-          <div class="q-plan__lines"><i></i><i></i><i></i></div>
-        </div>
-        <img src="assets/img/bowl.png" alt="">
-      </div>
-      <p class="q-sub q-anim" style="--i:2">${t("quiz.result.note")}</p>
+      <div id="q-result-body"></div>
     </div>`;
   }
 
@@ -138,25 +131,29 @@
     stage.querySelectorAll("[data-combo-src]").forEach((inp) => Combo.attach(inp, () => breedNames()));
 
     const isResult = step.type === "result";
+    if (isResult) Results.mount(stage.querySelector("#q-result-body"), updateNext);
     const n = Math.min(index + 1, QUESTION_STEPS);
     count.textContent = isResult ? t("quiz.done") : t("quiz.step", { n, total: QUESTION_STEPS });
     bar.style.width = (isResult ? 100 : (index / QUESTION_STEPS) * 100 + 100 / QUESTION_STEPS / 2) + "%";
     btnBack.hidden = index === 0;
 
     const nextIsResult = STEPS[index + 1] && STEPS[index + 1].type === "result";
-    nextLabel.textContent = isResult ? t("quiz.order") : nextIsResult ? t("quiz.finish") : t("quiz.next");
+    nextLabel.textContent = nextIsResult ? t("quiz.finish") : t("quiz.next");
     updateNext();
   }
 
   function isValid(step) {
-    if (step.type === "result") return false; // оформление — следующий этап
+    if (step.type === "result") return Results.canSubmit() || Results.isSent();
     const fields = step.fields.flatMap((f) => (f.type === "inputs" ? f.items : [f]));
     return fields.filter((f) => f.required).every((f) => {
       const v = A()[f.name];
       return Array.isArray(v) ? v.length : String(v ?? "").trim() !== "";
     });
   }
-  function updateNext() { btnNext.disabled = !isValid(STEPS[index]); }
+  function updateNext() {
+    btnNext.disabled = !isValid(STEPS[index]);
+    if (STEPS[index].type === "result") nextLabel.textContent = t(Results.isSent() ? "res.close" : "res.submit");
+  }
 
   function go(to) {
     if (to < 0 || to >= STEPS.length) return;
@@ -233,7 +230,16 @@
     }
   });
 
-  btnNext.addEventListener("click", () => { if (isValid(STEPS[index])) go(index + 1); });
+  btnNext.addEventListener("click", async () => {
+    if (!isValid(STEPS[index])) return;
+    if (STEPS[index].type !== "result") return go(index + 1);
+    if (Results.isSent()) return Quiz.close();
+    btnNext.disabled = true;
+    nextLabel.textContent = t("res.sending");
+    try { await Results.submit(); }
+    catch (e) { alert(t("res.sendError")); }
+    updateNext();
+  });
   btnBack.addEventListener("click", () => go(index - 1));
   root.querySelectorAll("[data-quiz-close]").forEach((b) => b.addEventListener("click", () => Quiz.close()));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && isOpen) Quiz.close(); });

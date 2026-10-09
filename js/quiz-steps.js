@@ -24,8 +24,8 @@ window.QUIZ_STEPS = [
         items: [
           { type: "text", name: "name", required: true, maxlength: 40 },
           { type: "text", name: "breed", combo: "breeds", maxlength: 60 },
-          { type: "number", name: "age", units: { name: "ageUnit", options: ["years", "months"] } },
-          { type: "number", name: "weight", suffix: "quiz.unit.kg" },
+          { type: "number", name: "age", required: true, units: { name: "ageUnit", options: ["years", "months"] } },
+          { type: "number", name: "weight", required: true, suffix: "quiz.unit.kg" },
         ],
       },
     ],
@@ -44,14 +44,32 @@ window.QUIZ_STEPS = [
         options: [
           { value: "chicken", icon: "🍗" },
           { value: "beef", icon: "🥩" },
+          { value: "fish", icon: "🐟" },
           { value: "pumpkin", icon: "🎃" },
           { value: "broccoli", icon: "🥦" },
           { value: "zucchini", icon: "🥒" },
-          { value: "grains", icon: "🌾" },
+          { value: "grains", icon: "🌾", pets: ["dog"] }, // кошачьи рационы без круп
           { value: "none", icon: "🙌", wide: true },
         ],
       },
       { type: "flag", name: "disease", icon: "🩺" },
+    ],
+  },
+  {
+    id: "food",
+    title: "quiz.food.title",
+    sub: "quiz.food.sub",
+    fields: [
+      {
+        type: "cards",
+        name: "food",
+        required: true,
+        options: [
+          { value: "ready", icon: "🥣" },
+          { value: "homemade", icon: "👩‍🍳" },
+          { value: "cooked", icon: "🍲" },
+        ],
+      },
     ],
   },
   {
