@@ -88,13 +88,17 @@
       "quiz.f.sterilized": "Питомец стерилизован?",
       "quiz.opt.sterilized.yes": "Да",
       "quiz.opt.sterilized.no": "Нет",
-      "quiz.f.allergies": "Есть ли аллергия?",
+      "quiz.f.allergies": "Аллергия или не любит?",
       "quiz.f.allergies.hint": "можно выбрать несколько",
       "quiz.opt.allergies.chicken": "Курица",
       "quiz.opt.allergies.beef": "Говядина",
       "quiz.opt.allergies.pumpkin": "Тыква",
       "quiz.opt.allergies.broccoli": "Брокколи",
       "quiz.opt.allergies.zucchini": "Кабачок",
+      "quiz.opt.allergies.grains": "Крупы",
+      "quiz.f.disease": "Есть заболевание",
+      "quiz.desc.disease": "С вами свяжется менеджер и поможет подобрать рацион.",
+      "quiz.combo.custom": (v) => `Оставить «${v.value}» — нет в списке`,
       "quiz.opt.allergies.none": "Нет аллергии",
 
       "quiz.activity.title": (v) => (v.name ? `${v.name}: какой уровень активности?` : "Какой уровень активности?"),
@@ -121,10 +125,6 @@
       "quiz.result.plan": { dog: "Рацион для собаки подбирается…", cat: "Рацион для кошки подбирается…" },
       "quiz.result.note": "Оформление заказа подключим на следующем этапе.",
 
-      "breeds": {
-        dog: ["Метис", "Лабрадор", "Французский бульдог", "Джек-рассел-терьер", "Шпиц", "Корги", "Бультерьер", "Такса", "Хаски", "Мальтипу", "Самоед", "Доберман"],
-        cat: ["Беспородная", "Британская", "Шотландская вислоухая", "Мейн-кун", "Сфинкс", "Сиамская", "Бенгальская", "Персидская"],
-      },
     },
 
     en: {
@@ -202,13 +202,17 @@
       "quiz.f.sterilized": "Is your pet spayed / neutered?",
       "quiz.opt.sterilized.yes": "Yes",
       "quiz.opt.sterilized.no": "No",
-      "quiz.f.allergies": "Any allergies?",
+      "quiz.f.allergies": "Allergic to or dislikes?",
       "quiz.f.allergies.hint": "pick as many as needed",
       "quiz.opt.allergies.chicken": "Chicken",
       "quiz.opt.allergies.beef": "Beef",
       "quiz.opt.allergies.pumpkin": "Pumpkin",
       "quiz.opt.allergies.broccoli": "Broccoli",
       "quiz.opt.allergies.zucchini": "Zucchini",
+      "quiz.opt.allergies.grains": "Grains",
+      "quiz.f.disease": "Has a health condition",
+      "quiz.desc.disease": "Our manager will contact you and help choose the right meals.",
+      "quiz.combo.custom": (v) => `Keep “${v.value}” — not in the list`,
       "quiz.opt.allergies.none": "No allergies",
 
       "quiz.activity.title": (v) => (v.name ? `How active is ${v.name}?` : "How active is your pet?"),
@@ -235,10 +239,6 @@
       "quiz.result.plan": { dog: "Choosing the plan for your dog…", cat: "Choosing the plan for your cat…" },
       "quiz.result.note": "Checkout will be connected in the next stage.",
 
-      "breeds": {
-        dog: ["Mixed breed", "Labrador", "French Bulldog", "Jack Russell Terrier", "Pomeranian", "Corgi", "Bull Terrier", "Dachshund", "Husky", "Maltipoo", "Samoyed", "Doberman"],
-        cat: ["Mixed breed", "British Shorthair", "Scottish Fold", "Maine Coon", "Sphynx", "Siamese", "Bengal", "Persian"],
-      },
     },
   };
 
@@ -262,8 +262,7 @@
       const s = Store.get();
       document.documentElement.lang = s.lang;
       document.title = t("meta.title");
-      const dl = document.getElementById("breeds");
-      if (dl) dl.innerHTML = t("breeds").map((b) => `<option value="${b}"></option>`).join("");
+
     }
   }
 

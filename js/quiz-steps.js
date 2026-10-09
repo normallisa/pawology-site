@@ -6,7 +6,8 @@
    - inputs  — группа текстовых/числовых полей (items: text | number)
    - choice  — один вариант из нескольких (кнопки в ряд)
    - multi   — несколько вариантов (чипсы с иконками); exclusive — «сбрасывающий» вариант
-   - cards   — крупные карточки с описанием (один вариант); autoNext — сам листает дальше
+   - cards   — крупные карточки с описанием (один вариант)
+   - flag    — отдельная карточка-флажок с пояснением (да/нет)
 
    Тексты берутся по ключам:
    label  -> "quiz.f.<name>",  вариант -> "quiz.opt.<name>.<value>",
@@ -22,9 +23,9 @@ window.QUIZ_STEPS = [
         type: "inputs",
         items: [
           { type: "text", name: "name", required: true, maxlength: 40 },
-          { type: "text", name: "breed", list: "breeds", maxlength: 60 },
-          { type: "number", name: "age", step: "0.5", units: { name: "ageUnit", options: ["years", "months"] } },
-          { type: "number", name: "weight", step: "0.1", suffix: "quiz.unit.kg" },
+          { type: "text", name: "breed", combo: "breeds", maxlength: 60 },
+          { type: "number", name: "age", units: { name: "ageUnit", options: ["years", "months"] } },
+          { type: "number", name: "weight", suffix: "quiz.unit.kg" },
         ],
       },
     ],
@@ -46,9 +47,11 @@ window.QUIZ_STEPS = [
           { value: "pumpkin", icon: "🎃" },
           { value: "broccoli", icon: "🥦" },
           { value: "zucchini", icon: "🥒" },
+          { value: "grains", icon: "🌾" },
           { value: "none", icon: "🙌", wide: true },
         ],
       },
+      { type: "flag", name: "disease", icon: "🩺" },
     ],
   },
   {
@@ -60,7 +63,6 @@ window.QUIZ_STEPS = [
         type: "cards",
         name: "activity",
         required: true,
-        autoNext: true,
         options: [
           { value: "low", level: 1, icon: { dog: "🛋️", cat: "😴" } },
           { value: "medium", level: 2, icon: { dog: "🎾", cat: "🧶" } },

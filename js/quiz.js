@@ -22,6 +22,7 @@
   const vars = () => ({ name: esc((A().name || "").trim()) });
   const byPet = (v) => (v && typeof v === "object" ? v[Store.get().pet] : v);
   const icon = (id) => `<svg><use href="#${id}"/></svg>`;
+  const breedNames = () => (window.BREEDS[Store.get().pet] || []).map((b) => (Store.get().lang === "en" ? b[1] : b[0]));
 
   /* ---------- Рендер полей ---------- */
   const render = {
@@ -34,9 +35,9 @@
               `<button type="button" data-unit="${it.units.name}" data-value="${u}" aria-pressed="${u === unit}">${t("quiz.unit." + u)}</button>`).join("")}</div>`
           : it.suffix ? `<span class="field__suffix">${t(it.suffix)}</span>` : "";
         return `<div class="field q-anim ${extra ? "field--unit" : ""}" style="--i:${i}">
-          <input id="q-${it.name}" data-name="${it.name}" type="${it.type}" placeholder=" "
-            ${it.type === "number" ? `inputmode="decimal" min="0" step="${it.step || 1}"` : ""}
-            ${it.maxlength ? `maxlength="${it.maxlength}"` : ""} ${it.list ? `list="${it.list}"` : ""}
+          <input id="q-${it.name}" data-name="${it.name}" type="text" placeholder=" "
+            ${it.type === "number" ? `inputmode="decimal" data-decimal="1"` : ""}
+            ${it.maxlength ? `maxlength="${it.maxlength}"` : ""} ${it.combo ? `data-combo-src="${it.combo}"` : ""}
             value="${esc(val)}" autocomplete="off">
           <label for="q-${it.name}">${t("quiz.f." + it.name)}${it.required ? "" : ""}</label>
           ${extra}
@@ -63,6 +64,19 @@
           <span>${t(`quiz.opt.${f.name}.${o.value}`)}</span>
           <span class="q-opt__check">${icon("i-check")}</span>
         </button>`).join("")}</div>`);
+    },
+
+    // отдельная карточка-флажок (например, «Есть заболевание»)
+    flag(f) {
+      const on = !!A()[f.name];
+      return `<button type="button" class="q-opt q-opt--card q-opt--flag q-anim" data-flag="${f.name}" aria-pressed="${on}">
+        <span class="q-opt__icon">${f.icon}</span>
+        <span class="q-opt__text">
+          <span class="q-opt__title">${t("quiz.f." + f.name)}</span>
+          <span class="q-opt__desc">${t("quiz.desc." + f.name)}</span>
+        </span>
+        <span class="q-opt__check">${icon("i-check")}</span>
+      </button>`;
     },
 
     cards(f) {
@@ -120,7 +134,8 @@
       ${step.sub ? `<p class="q-sub">${t(step.sub, vars())}</p>` : ""}
       ${body}
     </div>`;
-    if (!dir) stage.querySelectorAll(".q-anim").forEach((el) => (el.style.animation = "none"));
+    if (!dir) stage.querySelectorAll(".q-anim").forEach((el) => el.classList.remove("q-anim"));
+    stage.querySelectorAll("[data-combo-src]").forEach((inp) => Combo.attach(inp, () => breedNames()));
 
     const isResult = step.type === "result";
     const n = Math.min(index + 1, QUESTION_STEPS);
@@ -152,10 +167,23 @@
   }
 
   /* ---------- События ---------- */
+  // после появления снимаем класс анимации, иначе при снятии галочки
+  // элемент заново проигрывает появление («мигает»)
+  stage.addEventListener("animationend", (e) => {
+    if (e.animationName === "q-in") e.target.classList.remove("q-anim");
+  });
+
   stage.addEventListener("input", (e) => {
     const el = e.target.closest("[data-name]");
     if (!el) return;
-    Store.setAnswer(el.dataset.name, el.value);
+    let v = el.value;
+    if (el.dataset.decimal) {
+      // вес и возраст: можно писать и 5,5 и 5.5
+      const clean = v.replace(/[^\d.,]/g, "");
+      if (clean !== v) el.value = v = clean;
+      v = v.replace(",", ".");
+    }
+    Store.setAnswer(el.dataset.name, v);
     updateNext();
   });
 
@@ -179,6 +207,14 @@
       updateNext();
       const field = STEPS[index].fields.find((f) => f.name === name);
       if (field && field.autoNext) setTimeout(() => { if (!btnNext.disabled) go(index + 1); }, 420);
+      return;
+    }
+
+    const flag = e.target.closest("[data-flag]");
+    if (flag) {
+      const on = flag.getAttribute("aria-pressed") !== "true";
+      Store.setAnswer(flag.dataset.flag, on);
+      flag.setAttribute("aria-pressed", String(on));
       return;
     }
 

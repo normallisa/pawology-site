@@ -214,3 +214,7 @@
   .quiz__back { width: 54px; height: 54px; }
   .quiz__next { min-height: 54px; }
 }
+
+/* карточка-флажок «Есть заболевание» */
+.q-opt--flag { margin-top: -8px; }
+.q-opt--flag .q-opt__title { font-size: 16px; }

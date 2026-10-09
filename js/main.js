@@ -12,11 +12,18 @@
 
   // Стартовая строка на втором экране: переносим ответы в квиз
   const bar = document.getElementById("quiz-bar");
+  const breedNames = () => (window.BREEDS[Store.get().pet] || []).map((b) => (Store.get().lang === "en" ? b[1] : b[0]));
+  Combo.attach(document.getElementById("qb-breed"), breedNames);
+  // возраст: можно писать 1,5 и 1.5
+  document.getElementById("qb-age").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^\d.,]/g, "");
+  });
   bar.addEventListener("submit", (e) => {
     e.preventDefault();
     const data = new FormData(bar);
     ["name", "breed", "age"].forEach((k) => {
-      const v = String(data.get(k) || "").trim();
+      let v = String(data.get(k) || "").trim();
+      if (k === "age") v = v.replace(",", ".");
       if (v) Store.setAnswer(k, v);
     });
     if (data.get("age")) Store.setAnswer("ageUnit", "years");
