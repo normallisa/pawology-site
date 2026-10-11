@@ -1,7 +1,7 @@
 /* ============ Screen 2 · заголовок + вход в квиз ============ */
 .intro {
   position: relative;
-  display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
   padding: 44px var(--page-x) 56px;
   overflow-x: clip;   /* по вертикали мясо может «выходить» за секцию */
   z-index: 1;

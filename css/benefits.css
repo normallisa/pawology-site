@@ -4,7 +4,7 @@
   padding: 40px 0 72px;
   background: var(--page);
 }
-.benefits .section-title { padding: 0 var(--page-x); }
+.benefits .section-title { padding: 0 var(--page-x); max-width: none; }
 
 .benefits__stage {
   position: relative;
@@ -56,7 +56,7 @@
 .ben-f4 { width: 36px; left: 86%; top: 280px; --dur: 11s; --delay: -6s; }
 .ben-f5 { display: none; }
 
-.benefits__cta { display: flex; justify-content: flex-start; margin-top: 40px; padding: 0 var(--page-x); }
+.benefits__cta { display: flex; justify-content: center; margin-top: 40px; padding: 0 var(--page-x); }
 .benefits__cta .btn-accent { min-width: 300px; }
 
 /* ---------- Desktop: плашки вокруг боула ---------- */

@@ -207,8 +207,13 @@
   .quiz__top { padding-top: 10px; padding-bottom: 8px; }
   .q-title { font-size: 24px; }
   .q-sub { margin-top: 6px; font-size: 14px; }
-  .field input { height: 56px; padding-top: 22px; }
-  .q-fields { gap: 18px; margin-top: 18px; }
+  .field input { height: 52px; padding-top: 20px; }
+  .q-fields { gap: 14px; margin-top: 14px; }
+  .q-inputs { gap: 8px; }
+  .q-group__label { margin-bottom: 8px; }
+  .quiz__meta { margin-bottom: 10px; }
+  .q-choice .q-opt { min-height: 50px; padding-top: 6px; padding-bottom: 6px; }
+  .q-choice .q-opt__icon { width: 36px; height: 36px; font-size: 18px; }
   .q-opt { min-height: 54px; }
   .quiz__nav { padding-top: 8px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
   .quiz__back { width: 54px; height: 54px; }
@@ -273,7 +278,7 @@
   animation: shimmer 1.4s linear infinite;
 }
 
-.r-done { margin-top: 32px; text-align: left; }
+.r-done { margin-top: 32px; text-align: center; }
 .r-done__icon { font-size: 48px; }
 .r-done h3 { margin-top: 10px; font-size: 24px; font-weight: 800; letter-spacing: -.05em; }
 
@@ -289,3 +294,17 @@
 .field--area textarea:focus + label, .field--area textarea:not(:placeholder-shown) + label { transform: translateY(-60%) scale(.78); color: var(--ink-2); }
 .r-form__hint { margin-top: -2px; font-size: 13px; color: var(--ink-3); }
 .quiz__meta .pet-switch[hidden] { display: none; }
+
+/* скидка на первый заказ */
+.r-card__head { position: relative; padding-right: 64px; }
+.r-card__badge {
+  position: absolute; right: 0; top: 0;
+  padding: 3px 10px 4px; border-radius: 10px; background: var(--orange); color: #fff;
+  font-weight: 900; font-size: 15px; rotate: -6deg;
+}
+.r-price__old {
+  font-size: 13px; font-weight: 600; color: var(--ink-3);
+  text-decoration: line-through; text-decoration-color: #E5484D; text-decoration-thickness: 2px;
+}
+.r-price b { font-size: 21px; }
+.r-price[aria-pressed="true"] .r-price__old { color: rgba(255, 255, 255, .7); }

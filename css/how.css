@@ -18,7 +18,7 @@
 .how__step h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.05em; font-size: 18px; line-height: 1.2; }
 .how__step p { margin-top: 8px; color: var(--ink-2); font-size: 15px; }
 
-.how__cta { display: flex; justify-content: flex-start; margin-top: 40px; }
+.how__cta { display: flex; justify-content: center; margin-top: 40px; }
 .how__cta .btn-accent { min-width: 300px; }
 
 @media (min-width: 900px) {

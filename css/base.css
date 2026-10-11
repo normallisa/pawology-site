@@ -43,8 +43,9 @@ svg { display: block; }
   font-size: clamp(30px, 4.2vw, 52px);
   line-height: 1.2;
   letter-spacing: -.05em;
-  text-align: left;
+  text-align: center;
   max-width: 900px;
+  margin: 0 auto;
 }
 .section-title b { font-weight: 800; }
 

@@ -28,6 +28,12 @@ const DOG_LINE_NO_GRAINS = "Let's Meat";
 const FIRST_BITE_FOODS = ['ready', 'cooked'];
 const FIRST_BITE_SHEET = 'First Bite';
 const FIRST_BITE_NO_GRAINS_SHEET = 'First Bite без круп';
+// Скидка на первый заказ. Можно задать в «Настройках» строками с такими названиями;
+// если строк нет — берутся значения по умолчанию.
+const PROMO_REAL_LABEL = 'Скидка на первый заказ (считаем)';
+const PROMO_SHOWN_LABEL = 'Скидка на первый заказ (пишем на сайте)';
+const PROMO_REAL_DEFAULT = 0.4;
+const PROMO_SHOWN_DEFAULT = 0.5;
 
 /* ------------------------------ HTTP ------------------------------ */
 
@@ -48,10 +54,10 @@ function doPost(e) {
     const input = parseInput_(body.answers || {});
     const result = calc_(input);
     // цену пересчитываем на сервере, а не берём из браузера
-    let price = '';
+    let price = '', sale = '';
     const r = result.rations.concat(result.firstBite).find(function (x) { return x.name === body.ration; });
-    if (r) price = r.prices[String(body.period)] || '';
-    saveLead_(body, input, result.gramsPerDay, price);
+    if (r) { price = r.prices[String(body.period)] || ''; sale = r.sale[String(body.period)] || ''; }
+    saveLead_(body, input, result.gramsPerDay, price, sale);
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message || err) });
@@ -113,7 +119,7 @@ function calc_(inp) {
     PERIODS.forEach(function (d) {
       prices[d] = ceilTo_(priceDay * d * (1 - discount_(s, d)), s.roundTo);  // Калькулятор!E17
     });
-    return { name: r.name, line: r.line, flavor: r.flavor, gramsPerDay: grams, prices: prices };
+    return { name: r.name, line: r.line, flavor: r.flavor, gramsPerDay: grams, prices: prices, sale: promo_(prices, s) };
   });
 
   // First Bite: собакам на готовом корме или варёной натуралке; при аллергии на крупы — лист без круп
@@ -123,11 +129,19 @@ function calc_(inp) {
     firstBite = firstBite_(ss, s, grams, sheet).filter(function (f) {
       return excluded.indexOf(f.allergen) < 0;
     }).map(function (f) {
-      return { name: sheet + ' · ' + f.flavor, line: sheet, flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: { 14: f.price } };
+      const prices = { 14: f.price };
+      return { name: sheet + ' · ' + f.flavor, line: sheet, flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: prices, sale: promo_(prices, s) };
     });
   }
 
-  return { gramsPerDay: grams, rations: rations, firstBite: firstBite };
+  return { gramsPerDay: grams, rations: rations, firstBite: firstBite, promo: { shown: s.promoShown } };
+}
+
+/** Цена со скидкой на первый заказ: цена калькулятора − скидка, вверх до целого лари. */
+function promo_(prices, s) {
+  const out = {};
+  Object.keys(prices).forEach(function (k) { out[k] = ceilTo_(prices[k] * (1 - s.promoReal), s.roundTo); });
+  return out;
 }
 
 function packPerDay_(g, s) {
@@ -155,6 +169,7 @@ function settings_(ss) {
     if (inDiscounts && typeof row[0] === 'number') { discounts[row[0]] = Number(row[1]) || 0; return; }
     if (k) map[k] = row[1];
   });
+  const opt = function (label, def) { return (label in map && map[label] !== '') ? Number(map[label]) : def; };
   const need = function (label) {
     if (!(label in map)) throw new Error('В «Настройках» не найдено: ' + label);
     return Number(map[label]);
@@ -174,6 +189,8 @@ function settings_(ss) {
     labelPack: need('Этикетка: цена за упаковку, ₾'),
     labelCount: need('Этикеток в упаковке, шт'),
     discounts: discounts,
+    promoReal: opt(PROMO_REAL_LABEL, PROMO_REAL_DEFAULT),
+    promoShown: opt(PROMO_SHOWN_LABEL, PROMO_SHOWN_DEFAULT),
   };
 }
 
@@ -249,37 +266,63 @@ function firstBite_(ss, s, normGrams, sheetName) {
 
 /* ------------------------------ Заявки ------------------------------ */
 
-function saveLead_(body, inp, grams, price) {
+function saveLead_(body, inp, grams, price, sale) {
   const ss = SpreadsheetApp.getActive();
-  let sh = ss.getSheetByName(LEADS_SHEET);
-  const header = ['Дата', 'Имя клиента', 'Телефон', 'Ссылка для связи', 'Адрес', 'Вид', 'Кличка', 'Порода', 'Возраст', 'Вес, кг',
-    'Активность', 'Стерилизация', 'Аллергия или не любит', 'Есть заболевание', 'Сейчас ест', 'О питомце',
-    'Граммовка в день, г', 'Выбранный рацион', 'Период, дн.', 'Цена, ₾', 'Язык сайта'];
-  if (!sh) {
-    sh = ss.insertSheet(LEADS_SHEET);
-    sh.appendRow(header);
-    sh.setFrozenRows(1);
-    sh.getRange(1, 1, 1, header.length).setFontWeight('bold');
-  }
   const a = body.answers || {};
   const c = body.contact || {};
   // коды с сайта → понятные менеджеру слова
   const RU = {
-    yes: 'да', no: 'нет',
+    yes: 'да', no: 'нет', male: 'мальчик', female: 'девочка',
     chicken: 'курица', beef: 'говядина', fish: 'рыба', pumpkin: 'тыква', broccoli: 'брокколи',
     zucchini: 'кабачок', grains: 'крупы', none: 'нет',
     ready: 'готовый корм', homemade: 'готовит сам(а)', cooked: 'варёная натуралка',
   };
   const ru = function (x) { return RU[x] || x || ''; };
   const clean = function (x, max) { return String(x == null ? '' : x).slice(0, max || 200).replace(/^[=+\-@]/, "'$&"); };
-  sh.appendRow([
-    new Date(), clean(c.name), clean(c.phone), clean(c.link), clean(c.address, 400),
-    inp.pet, clean(a.name), clean(a.breed),
-    a.age ? clean(a.age) + ' ' + (a.ageUnit === 'months' ? 'мес' : 'лет') : '',
-    inp.weight, inp.activity, ru(a.sterilized), (a.allergies || []).map(ru).join(', '),
-    a.disease ? 'да' : '', ru(a.food), clean(c.about, 1500), grams,
-    clean(body.ration), clean(body.period), price, clean(body.lang),
-  ]);
+
+  // значения по названиям колонок: новые колонки добавятся в конец сами
+  const row = {
+    'Дата': new Date(),
+    'Имя клиента': clean(c.name),
+    'Телефон': clean(c.phone),
+    'Ссылка для связи': clean(c.link),
+    'Адрес': clean(c.address, 400),
+    'Вид': inp.pet,
+    'Кличка': clean(a.name),
+    'Пол': ru(a.sex),
+    'Порода': clean(a.breed),
+    'Возраст': a.age ? clean(a.age) + ' ' + (a.ageUnit === 'months' ? 'мес' : 'лет') : '',
+    'Вес, кг': inp.weight,
+    'Активность': inp.activity,
+    'Стерилизация': ru(a.sterilized),
+    'Аллергия или не любит': (a.allergies || []).map(ru).join(', '),
+    'Есть заболевание': a.disease ? 'да' : '',
+    'Сейчас ест': ru(a.food),
+    'О питомце': clean(c.about, 1500),
+    'Граммовка в день, г': grams,
+    'Выбранный рацион': clean(body.ration),
+    'Период, дн.': clean(body.period),
+    'Цена без скидки, ₾': price,
+    'Цена со скидкой, ₾': sale,
+    'Язык сайта': clean(body.lang),
+  };
+
+  let sh = ss.getSheetByName(LEADS_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(LEADS_SHEET);
+    sh.appendRow(Object.keys(row));
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, Object.keys(row).length).setFontWeight('bold');
+  }
+  const lastCol = Math.max(sh.getLastColumn(), 1);
+  const header = sh.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  Object.keys(row).forEach(function (k) {
+    if (header.indexOf(k) < 0) {
+      header.push(k);
+      sh.getRange(1, header.length).setValue(k).setFontWeight('bold');
+    }
+  });
+  sh.appendRow(header.map(function (k) { return k in row ? row[k] : ''; }));
 }
 
 /* Быстрая проверка из редактора: Выполнить → testCalc, смотреть «Журнал выполнения». */

@@ -58,7 +58,8 @@
   function priceBtn(r, period) {
     const sel = st.selected && st.selected.name === r.name && st.selected.period === period;
     return `<button type="button" class="r-price" data-ration="${esc(r.name)}" data-period="${period}" aria-pressed="${!!sel}">
-      <b>${t("res.from")} ${r.prices[period]} ₾</b><span>${t("res.days", { n: period })}</span>
+      ${r.sale ? `<s class="r-price__old">${r.prices[period]} ₾</s>` : ""}
+      <b>${t("res.from")} ${r.sale ? r.sale[period] : r.prices[period]} ₾</b><span>${t("res.days", { n: period })}</span>
     </button>`;
   }
 
@@ -69,6 +70,7 @@
       <div class="r-card__head">
         <span class="r-card__line">${esc(tr(r.line))}</span>
         <span class="r-card__flavor">${esc(tr(r.flavor))}</span>
+        ${r.sale && st.data.promo ? `<span class="r-card__badge">−${Math.round(st.data.promo.shown * 100)}%</span>` : ""}
       </div>
       <div class="r-card__prices">${periods.map((p) => priceBtn(r, p)).join("")}</div>
     </li>`;
@@ -80,6 +82,7 @@
       `<div class="field"><input id="r-${k}" data-contact="${k}" type="${type}" placeholder=" " maxlength="${max}" value="${esc(c[k])}" autocomplete="${ac}"><label for="r-${k}">${t("res.f." + k)}</label></div>`;
     return `<div class="r-form q-anim" style="--i:3">
       <h3 class="r-form__title">${t("res.form.title")}</h3>
+      <p class="q-sub">${t("res.form.sub")}</p>
       <div class="r-form__fields">
         ${input("name", "text", "name", 60)}
         ${input("phone", "tel", "tel", 30)}
@@ -126,11 +129,13 @@
         <span>${t("res.portion", { g: d.gramsPerDay, name: esc((a.name || "").trim()) })}</span>
       </div>
       ${a.disease ? `<p class="r-note r-note--soft q-anim">${t("res.disease")}</p>` : ""}
-      ${list.length
-        ? `<h3 class="r-h q-anim">${t("res.list.title", { line: esc(tr(list[0].line)) })}</h3><ul class="r-list">${list.map(card).join("")}</ul>`
-        : `<p class="r-note q-anim">${t("res.empty")}</p>`}
       ${fb.length ? `<h3 class="r-h q-anim">${t("res.fb.title")}</h3><p class="q-sub r-h__sub">${t("res.fb.sub")}</p>
-        <ul class="r-list">${fb.map((r, i) => card(r, i + list.length)).join("")}</ul>` : ""}
+        <ul class="r-list">${fb.map(card).join("")}</ul>` : ""}
+      ${list.length
+        ? `<h3 class="r-h q-anim">${t("res.list.title", { line: esc(tr(list[0].line)) })}</h3>
+           <p class="q-sub r-h__sub">${t("res.line." + list[0].line)}</p>
+           <ul class="r-list">${list.map((r, i) => card(r, i + fb.length)).join("")}</ul>`
+        : `<p class="r-note q-anim">${t("res.empty")}</p>`}
       ${contactForm()}`;
     notify();
   }

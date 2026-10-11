@@ -28,6 +28,7 @@ window.QUIZ_STEPS = [
           { type: "number", name: "weight", required: true, suffix: "quiz.unit.kg" },
         ],
       },
+      { type: "choice", name: "sex", required: true, options: [{ value: "male", icon: "♂️" }, { value: "female", icon: "♀️" }] },
     ],
   },
   {
