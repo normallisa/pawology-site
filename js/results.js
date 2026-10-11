@@ -38,13 +38,14 @@
     if (st.key === key && (st.status === "ready" || st.status === "loading")) return draw();
     st.key = key;
     st.selected = null;
-    if (cache[key]) { st.data = cache[key]; st.status = "ready"; return draw(); }
+    if (cache[key]) { st.data = cache[key]; st.status = "ready"; preselect(st.data); return draw(); }
     st.status = "loading"; draw();
     try {
       const res = await fetch(API() + "?" + key);
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "error");
       cache[key] = data;
+      preselect(data);
       if (st.key !== key) return;
       st.data = data; st.status = "ready";
     } catch (e) {
@@ -52,6 +53,12 @@
       st.status = "error";
     }
     draw();
+  }
+
+  // рекомендуемый вариант выбран заранее: First Bite, если он есть, иначе первый рацион
+  function preselect(data) {
+    const first = (data.firstBite || [])[0] || (data.rations || [])[0];
+    st.selected = first ? { name: first.name, period: Object.keys(first.prices)[0] } : null;
   }
 
   /* ---------- Разметка ---------- */
@@ -78,15 +85,15 @@
 
   function contactForm() {
     const c = st.contact;
-    const input = (k, type, ac, max) =>
-      `<div class="field"><input id="r-${k}" data-contact="${k}" type="${type}" placeholder=" " maxlength="${max}" value="${esc(c[k])}" autocomplete="${ac}"><label for="r-${k}">${t("res.f." + k)}</label></div>`;
+    const input = (k, type, ac, max, req) =>
+      `<div class="field"><input id="r-${k}" data-contact="${k}" type="${type}" placeholder=" " maxlength="${max}" value="${esc(c[k])}" autocomplete="${ac}" ${req ? "required" : ""}><label for="r-${k}">${t("res.f." + k)}${req ? '<i class="req" aria-hidden="true">*</i>' : ""}</label></div>`;
     return `<div class="r-form q-anim" style="--i:3">
       <h3 class="r-form__title">${t("res.form.title")}</h3>
       <p class="q-sub">${t("res.form.sub")}</p>
       <div class="r-form__fields">
-        ${input("name", "text", "name", 60)}
-        ${input("phone", "tel", "tel", 30)}
-        ${input("link", "text", "off", 120)}
+        ${input("name", "text", "name", 60, true)}
+        ${input("phone", "tel", "tel", 30, true)}
+        ${input("link", "text", "off", 120, true)}
         ${input("address", "text", "street-address", 200)}
         <div class="field field--area">
           <textarea id="r-about" data-contact="about" placeholder=" " maxlength="1500" rows="3">${esc(c.about)}</textarea>
@@ -132,7 +139,7 @@
       ${fb.length ? `<h3 class="r-h q-anim">${t("res.fb.title")}</h3><p class="q-sub r-h__sub">${t("res.fb.sub")}</p>
         <ul class="r-list">${fb.map(card).join("")}</ul>` : ""}
       ${list.length
-        ? `<h3 class="r-h q-anim">${t("res.list.title", { line: esc(tr(list[0].line)) })}</h3>
+        ? `<h3 class="r-h q-anim">${t(fb.length ? "res.list.afterFb" : "res.list.title", { line: esc(tr(list[0].line)) })}</h3>
            <p class="q-sub r-h__sub">${t("res.line." + list[0].line)}</p>
            <ul class="r-list">${list.map((r, i) => card(r, i + fb.length)).join("")}</ul>`
         : `<p class="r-note q-anim">${t("res.empty")}</p>`}
@@ -176,8 +183,9 @@
       if (st.status !== "ready") return false;
       const hasList = (st.data.rations || []).length + (st.data.firstBite || []).length > 0;
       const c = st.contact;
+      // обязательны имя, телефон и ссылка; адрес и «о питомце» — по желанию
       return (!hasList || !!st.selected) && c.name.trim().length > 1
-        && c.phone.replace(/\D/g, "").length >= 7 && c.address.trim().length >= 5;
+        && c.phone.replace(/\D/g, "").length >= 7 && c.link.trim().length >= 3;
     },
     isSent: () => st.status === "sent",
     async submit() {

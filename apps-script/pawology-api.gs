@@ -33,6 +33,8 @@ const FIRST_BITE_NO_GRAINS_SHEET = 'First Bite без круп';
 const PROMO_REAL_LABEL = 'Скидка на первый заказ (считаем)';
 const PROMO_SHOWN_LABEL = 'Скидка на первый заказ (пишем на сайте)';
 const PROMO_REAL_DEFAULT = 0.4;
+const PROMO_FB_LABEL = 'Скидка на First Bite (считаем)';
+const PROMO_FB_DEFAULT = 0.5;
 const PROMO_SHOWN_DEFAULT = 0.5;
 
 /* ------------------------------ HTTP ------------------------------ */
@@ -130,17 +132,18 @@ function calc_(inp) {
       return excluded.indexOf(f.allergen) < 0;
     }).map(function (f) {
       const prices = { 14: f.price };
-      return { name: sheet + ' · ' + f.flavor, line: sheet, flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: prices, sale: promo_(prices, s) };
+      return { name: sheet + ' · ' + f.flavor, line: sheet, flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: prices, sale: promo_(prices, s, s.promoFirstBite) };
     });
   }
 
   return { gramsPerDay: grams, rations: rations, firstBite: firstBite, promo: { shown: s.promoShown } };
 }
 
-/** Цена со скидкой на первый заказ: цена калькулятора − скидка, вверх до целого лари. */
-function promo_(prices, s) {
+/** Цена со скидкой на первый заказ: цена калькулятора − скидка (у First Bite своя), вверх до целого лари. */
+function promo_(prices, s, rate) {
+  const r = rate == null ? s.promoReal : rate;
   const out = {};
-  Object.keys(prices).forEach(function (k) { out[k] = ceilTo_(prices[k] * (1 - s.promoReal), s.roundTo); });
+  Object.keys(prices).forEach(function (k) { out[k] = ceilTo_(prices[k] * (1 - r), s.roundTo); });
   return out;
 }
 
@@ -191,6 +194,7 @@ function settings_(ss) {
     discounts: discounts,
     promoReal: opt(PROMO_REAL_LABEL, PROMO_REAL_DEFAULT),
     promoShown: opt(PROMO_SHOWN_LABEL, PROMO_SHOWN_DEFAULT),
+    promoFirstBite: opt(PROMO_FB_LABEL, PROMO_FB_DEFAULT),
   };
 }
 
