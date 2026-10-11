@@ -107,18 +107,18 @@ body.is-ready .hero__heart path { animation: draw 1.2s var(--ease-out) 1.3s forw
 .hero__content {
   position: absolute; inset: 0; z-index: 3;
   display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
-  padding: 24px 18px 16px;
+  padding: 24px calc(var(--page-x) - var(--gutter)) 16px;
   pointer-events: none;
 }
 .hero__content > * { pointer-events: auto; }
 .hero__text { color: #fff; max-width: 640px; animation: rise 1.1s var(--ease-out) .05s both; }
 .hero__title { font-size: clamp(32px, 9vw, 40px); }
-.hero__sub { margin-top: 8px; font-size: 18px; font-weight: 700; letter-spacing: -.02em; opacity: .95; }
+.hero__sub { margin-top: 8px; font-size: 18px; font-weight: 700; letter-spacing: -.05em; opacity: .95; }
 .hero__promo { margin-top: 14px; font-size: 15px; font-weight: 600; }
 .badge {
   display: inline-block; margin: 0 4px; padding: 3px 12px 4px;
   border-radius: 10px; background: var(--accent-alt); color: #fff;
-  font-weight: 900; font-size: 1.25em; letter-spacing: -.02em;
+  font-weight: 900; font-size: 1.25em; letter-spacing: -.05em;
   rotate: -6deg; box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .35);
   transition: background-color var(--t-theme);
   animation: badge-pop .9s var(--ease-out) .7s both;
@@ -156,7 +156,7 @@ body[data-pet="cat"] .hero__cta:active { background: #FF9E9A; }
 
 /* ---------- Tablet ---------- */
 @media (min-width: 640px) {
-  .hero__content { padding: 36px 32px 28px; }
+  .hero__content { padding-top: 36px; padding-bottom: 28px; }
   .hero__title { font-size: clamp(40px, 6vw, 56px); }
   .hero__actions { grid-auto-flow: column; justify-content: start; }
   .hero__actions .pet-switch { width: auto; }
@@ -170,7 +170,7 @@ body[data-pet="cat"] .hero__cta:active { background: #FF9E9A; }
   .hero__card { height: calc(100svh - 2 * var(--gutter) - 190px); min-height: 560px; max-height: 800px; }
   .hero__content {
     justify-content: center; gap: 36px;
-    padding: calc(var(--hdr-h) + 12px) 56px 56px;
+    padding-top: calc(var(--hdr-h) + 12px); padding-bottom: 56px;
   }
   .hero__text { max-width: 46%; }
   .hero__title { font-size: clamp(48px, 4.6vw, 72px); }

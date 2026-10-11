@@ -6,7 +6,7 @@
   background: var(--ink); color: #fff;
 }
 .footer__inner { display: flex; flex-direction: column; gap: 28px; align-items: flex-start; }
-.footer__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 4vw, 48px); letter-spacing: -.035em; }
+.footer__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 4vw, 48px); letter-spacing: -.05em; }
 .footer__text { margin-top: 10px; max-width: 460px; color: rgba(255, 255, 255, .7); }
 .footer__bottom {
   display: flex; justify-content: space-between; align-items: center; gap: 16px;
@@ -20,3 +20,5 @@
   .footer { padding: 80px 0 28px; }
   .footer__inner { flex-direction: row; justify-content: space-between; align-items: flex-end; }
 }
+
+.footer .container { padding: 0 calc(var(--page-x) - var(--gutter)); }

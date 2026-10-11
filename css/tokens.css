@@ -46,13 +46,17 @@
   /* Размеры */
   --hdr-h: 60px;
   --gutter: 12px;
+  --page-x: 28px;   /* единая левая линия текста во всех секциях */
   --shadow-soft: 0 10px 30px -12px rgba(35, 48, 30, .18);
 }
+
+@media (min-width: 640px) { :root { --page-x: 44px; } }
 
 @media (min-width: 1024px) {
   :root {
     --hdr-h: 80px;
     --gutter: 16px;
+    --page-x: 72px;
   }
 }
 

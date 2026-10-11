@@ -35,8 +35,8 @@
       "pet.forDogs": "Для собак",
       "pet.forCats": "Для кошек",
 
-      "intro.title": `Подберём рацион ${HL("именно для вашего")} питомца`,
-      "intro.sub": "Ответьте на пару вопросов о питомце — и мы соберём рацион, который подойдёт именно ему.",
+      "intro.title": `Подберём рацион ${HL("для вашего")} питомца`,
+      "intro.sub": "Ответьте на пару вопросов — и мы соберём рацион, который подойдёт именно ему.",
       "intro.note": "2 минуты · без регистрации",
 
       "benefits.title": `Почему ${HL("с нами")} удобно`,
@@ -54,7 +54,7 @@
       "how.1.t": "Подбираем рацион",
       "how.1.d": "Вы рассказываете о питомце в коротком квизе, а мы предлагаем подходящий рацион.",
       "how.2.t": "Оформляем заказ",
-      "how.2.d": "После квиза с вами свяжется наш менеджер, чтобы уточнить детали и оформить заказ.",
+      "how.2.d": "После квиза с вами связывается наш менеджер, чтобы уточнить детали и оформить заказ.",
       "how.3.t": "Доставляем",
       "how.3.d": "Готовим ваш заказ — на это нам нужно 5 рабочих дней — и привозим его прямо к вам домой.",
 
@@ -185,8 +185,8 @@
       "pet.forDogs": "For dogs",
       "pet.forCats": "For cats",
 
-      "intro.title": `A meal plan made ${HL("just for your")} pet`,
-      "intro.sub": "Answer a few questions about your pet and we’ll put together a plan that suits them perfectly.",
+      "intro.title": `A meal plan for ${HL("your")} pet`,
+      "intro.sub": "Answer a few questions and we’ll put together a plan that suits them perfectly.",
       "intro.note": "2 minutes · no sign-up",
 
       "benefits.title": `Why it’s easy ${HL("with us")}`,

@@ -16,7 +16,7 @@
 .header__inner {
   height: 100%;
   display: flex; align-items: center; gap: 16px;
-  padding: 0 calc(var(--gutter) + 8px);
+  padding: 0 var(--page-x);
 }
 
 /* ---------- Лого ---------- */
@@ -58,7 +58,7 @@
 .menu.is-open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
 .menu__nav { display: flex; flex-direction: column; }
 .menu__nav a {
-  font-size: 32px; font-weight: 800; letter-spacing: -.03em;
+  font-size: 32px; font-weight: 800; letter-spacing: -.05em;
   padding: 14px 0; border-bottom: 1px solid var(--line);
 }
 
@@ -68,7 +68,7 @@
     position: fixed; left: 0; right: 0;
     background: transparent; color: #fff;
   }
-  .header__inner { gap: 48px; padding: 0 calc(var(--gutter) + 40px); margin-top: var(--gutter); height: calc(100% - var(--gutter)); }
+  .header__inner { gap: 48px; margin-top: var(--gutter); height: calc(100% - var(--gutter)); }
   .header.is-solid {
     height: 64px;
     background: rgba(255, 255, 255, .9);
