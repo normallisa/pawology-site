@@ -327,3 +327,12 @@
 
 /* красная звёздочка у обязательных полей */
 .req { color: #E5484D; font-style: normal; margin-left: 2px; }
+
+/* скидка на рацион после First Bite — розовая */
+.r-card__badge--pink { background: var(--pink); }
+.r-gift {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+  padding: 8px 16px; border-radius: var(--r-pill);
+  background: var(--pink); color: #fff; font-weight: 800; font-size: 15px;
+  rotate: -2deg; box-shadow: 0 10px 22px -12px rgba(238, 103, 103, .7);
+}

@@ -77,7 +77,7 @@
       <div class="r-card__head">
         <span class="r-card__line">${esc(tr(r.line))}</span>
         <span class="r-card__flavor">${esc(tr(r.flavor))}</span>
-        ${r.sale && st.data.promo ? `<span class="r-card__badge">−${Math.round(st.data.promo.shown * 100)}%</span>` : ""}
+        ${r.sale && st.data.promo ? `<span class="r-card__badge ${r.afterFirstBite ? "r-card__badge--pink" : ""}">−${Math.round((r.badge || st.data.promo.shown) * 100)}%</span>` : ""}
       </div>
       <div class="r-card__prices">${periods.map((p) => priceBtn(r, p)).join("")}</div>
     </li>`;
@@ -141,6 +141,7 @@
       ${list.length
         ? `<h3 class="r-h q-anim">${t(fb.length ? "res.list.afterFb" : "res.list.title", { line: esc(tr(list[0].line)) })}</h3>
            <p class="q-sub r-h__sub">${t("res.line." + list[0].line)}</p>
+           ${fb.length && d.promo && d.promo.afterFirstBite ? `<p class="r-gift q-anim">🎁 ${t("res.gift", { p: Math.round(d.promo.afterFirstBite * 100) })}</p>` : ""}
            <ul class="r-list">${list.map((r, i) => card(r, i + fb.length)).join("")}</ul>`
         : `<p class="r-note q-anim">${t("res.empty")}</p>`}
       ${contactForm()}`;

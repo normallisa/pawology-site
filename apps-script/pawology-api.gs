@@ -21,7 +21,7 @@ const PERIODS = [7, 30];            // какие сроки показывае�
 const HIDE_RECIPE_MARK = 'индивидуальный';
 const NO_NECKS_MARK = 'без шей';
 // Какую линейку предлагаем: собакам — Pawfect Balance (в нём крупы: рис, гречка),
-// при аллергии на крупы — Let's Meat; кошкам — их линейка Let's Meat кошки.
+// при аллергии на крупы — Let's Meat; кошкам — их линейка Let's Meat cats.
 const DOG_LINE = 'Pawfect Balance';
 const DOG_LINE_NO_GRAINS = "Let's Meat";
 // First Bite — собакам, которые сейчас на готовом корме или варёной натуралке
@@ -35,6 +35,9 @@ const PROMO_SHOWN_LABEL = 'Скидка на первый заказ (пишем
 const PROMO_REAL_DEFAULT = 0.4;
 const PROMO_FB_LABEL = 'Скидка на First Bite (считаем)';
 const PROMO_FB_DEFAULT = 0.5;
+// Если сначала предлагаем First Bite — на рацион после него своя скидка (и считаем, и пишем).
+const PROMO_AFTER_FB_LABEL = 'Скидка на рацион после First Bite';
+const PROMO_AFTER_FB_DEFAULT = 0.3;
 const PROMO_SHOWN_DEFAULT = 0.5;
 
 /* ------------------------------ HTTP ------------------------------ */
@@ -136,7 +139,15 @@ function calc_(inp) {
     });
   }
 
-  return { gramsPerDay: grams, rations: rations, firstBite: firstBite, promo: { shown: s.promoShown } };
+  // рацион после First Bite — со своей скидкой (−30%), бейдж показывает её же
+  if (firstBite.length) {
+    rations.forEach(function (r) {
+      r.sale = promo_(r.prices, s, s.promoAfterFb);
+      r.badge = s.promoAfterFb;
+      r.afterFirstBite = true;
+    });
+  }
+  return { gramsPerDay: grams, rations: rations, firstBite: firstBite, promo: { shown: s.promoShown, afterFirstBite: s.promoAfterFb } };
 }
 
 /** Цена со скидкой на первый заказ: цена калькулятора − скидка (у First Bite своя), вверх до целого лари. */
@@ -195,6 +206,7 @@ function settings_(ss) {
     promoReal: opt(PROMO_REAL_LABEL, PROMO_REAL_DEFAULT),
     promoShown: opt(PROMO_SHOWN_LABEL, PROMO_SHOWN_DEFAULT),
     promoFirstBite: opt(PROMO_FB_LABEL, PROMO_FB_DEFAULT),
+    promoAfterFb: opt(PROMO_AFTER_FB_LABEL, PROMO_AFTER_FB_DEFAULT),
   };
 }
 
