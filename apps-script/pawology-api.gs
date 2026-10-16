@@ -32,6 +32,8 @@ const DOG_LINE_NO_GRAINS = "Let's Meat";
 const FIRST_BITE_FOODS = ['ready', 'cooked'];
 const FIRST_BITE_SHEET = 'First Bite';
 const FIRST_BITE_NO_GRAINS_SHEET = 'First Bite без круп';
+// цена First Bite на сайте — всегда по этому вкусу с листа без круп
+const FIRST_BITE_PRICE_FLAVOR = 'Говядина';
 // Скидка на первый заказ. Можно задать в «Настройках» строками с такими названиями;
 // если строк нет — берутся значения по умолчанию.
 const PROMO_REAL_LABEL = 'Скидка на первый заказ (считаем)';
@@ -148,17 +150,22 @@ function calc_(inp) {
   let firstBite = [];
   if (inp.pet === 'Собака' && FIRST_BITE_FOODS.indexOf(inp.food) >= 0) {
     const sheet = noGrains ? FIRST_BITE_NO_GRAINS_SHEET : FIRST_BITE_SHEET;
-    // одна карточка «переходный рацион»: вкусы перечислены, цена «от» — по самому доступному
+    // одна карточка «переходный рацион»: вкусы перечислены,
+    // цена — всегда по говядине без круп (лист «First Bite без круп»)
     const fb = firstBite_(ss, s, grams, sheet).filter(function (f) {
       return excluded.indexOf(f.allergen) < 0;
     });
     if (fb.length) {
-      const min = fb.reduce(function (m, f) { return f.price < m.price ? f : m; });
-      const prices = { 14: min.price };
+      const priced = firstBite_(ss, s, grams, FIRST_BITE_NO_GRAINS_SHEET).filter(function (f) {
+        return excluded.indexOf(f.allergen) < 0;
+      });
+      // говядина; если на неё аллергия — оставшийся вкус
+      const base = priced.find(function (f) { return f.flavor === FIRST_BITE_PRICE_FLAVOR; }) || priced[0] || fb[0];
+      const prices = { 14: base.price };
       firstBite = [{
         name: sheet, line: sheet,
         flavor: fb.map(function (f, i) { return i ? f.flavor.toLowerCase() : f.flavor; }).join(' / '),
-        gramsPerDay: grams, days: min.days, prices: prices, sale: promo_(prices, s, s.promoFirstBite),
+        gramsPerDay: grams, days: base.days, prices: prices, sale: promo_(prices, s, s.promoFirstBite),
       }];
     }
   }
