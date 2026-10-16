@@ -314,16 +314,14 @@
 @media (hover: hover) {
   .r-card:hover { transform: translateY(-4px) scale(1.015); border-color: var(--accent); box-shadow: 0 22px 40px -22px rgba(35, 48, 30, .45); }
 }
-.r-card.is-picked {
-  background: var(--accent); border-color: var(--accent); color: #fff;
-  transform: scale(1.02); box-shadow: 0 24px 44px -24px rgba(35, 48, 30, .55);
+/* выбранный вариант: карточка остаётся белой, подсвечивается только выбранная цена */
+.r-card.is-picked { background: #fff; border-color: var(--line); color: var(--ink); transform: none; box-shadow: none; }
+.r-card.is-picked .r-price[aria-pressed="true"] {
+  background: var(--accent-deep); border-color: var(--accent-deep); color: #fff;
+  box-shadow: 0 12px 24px -14px rgba(35, 48, 30, .6);
 }
-.r-card.is-picked .r-card__line { color: rgba(255, 255, 255, .8); }
-.r-card.is-picked .r-price { background: rgba(255, 255, 255, .16); border-color: rgba(255, 255, 255, .35); color: #fff; }
-.r-card.is-picked .r-price span, .r-card.is-picked .r-price__old { color: rgba(255, 255, 255, .8); }
-.r-card.is-picked .r-price[aria-pressed="true"] { background: #fff; border-color: #fff; color: var(--ink); }
-.r-card.is-picked .r-price[aria-pressed="true"] span { color: var(--ink-2); }
-.r-card.is-picked .r-price[aria-pressed="true"] .r-price__old { color: var(--ink-3); }
+.r-card.is-picked .r-price[aria-pressed="true"] span,
+.r-card.is-picked .r-price[aria-pressed="true"] .r-price__old { color: rgba(255, 255, 255, .8); }
 
 /* красная звёздочка у обязательных полей */
 .req { color: #E5484D; font-style: normal; margin-left: 2px; }
