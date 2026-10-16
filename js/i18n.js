@@ -60,7 +60,9 @@
 
       "footer.title": "Остались вопросы?",
       "footer.text": "Раздел FAQ скоро появится здесь. А пока — напишите нам, ответим.",
-      "footer.ig": "Написать в Instagram",
+      "footer.tg": "Написать в Telegram",
+      "footer.wa": "Написать в WhatsApp",
+      "footer.ig": "Наш Instagram",
 
       /* ---------- Квиз ---------- */
       "quiz.close": "Закрыть",
@@ -219,7 +221,9 @@
 
       "footer.title": "Still have questions?",
       "footer.text": "Our FAQ is coming soon. Meanwhile, just drop us a message.",
-      "footer.ig": "Message us on Instagram",
+      "footer.tg": "Message us on Telegram",
+      "footer.wa": "Message us on WhatsApp",
+      "footer.ig": "Our Instagram",
 
       "quiz.close": "Close",
       "quiz.back": "Back",

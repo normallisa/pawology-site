@@ -22,3 +22,9 @@
 }
 
 .footer .container { padding: 0 calc(var(--page-x) - var(--gutter)); }
+
+/* кнопки соцсетей */
+.footer__socials { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn-social { gap: 10px; padding: 0 20px 0 16px; }
+.btn-social svg { width: 22px; height: 22px; flex: none; }
+.btn-social:hover { background: var(--accent); color: #fff; }
