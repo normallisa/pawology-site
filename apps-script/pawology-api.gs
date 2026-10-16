@@ -119,7 +119,12 @@ function calc_(inp) {
     // «без шей» показываем только при аллергии на курицу
     // (обычные рецепты с шеями тогда отсеются по аллергену «Курица» ниже)
     if (!chickenAllergy && r.flavor.indexOf(NO_NECKS_MARK) >= 0) return false;
-    if (inp.pet === 'Собака' && r.line !== (noGrains ? DOG_LINE_NO_GRAINS : DOG_LINE)) return false;
+    // собакам: вкусы основной линейки, а рыба — всегда из Let's Meat
+    if (inp.pet === 'Собака') {
+      const fish = r.flavor.indexOf('Рыба') === 0;
+      const line = fish ? DOG_LINE_NO_GRAINS : (noGrains ? DOG_LINE_NO_GRAINS : DOG_LINE);
+      if (r.line !== line) return false;
+    }
     return !r.allergens.some(function (a) { return excluded.indexOf(a) >= 0; });
   }).map(function (r) {
     const pack = packPerDay_(grams, s);
@@ -130,18 +135,28 @@ function calc_(inp) {
       prices[d] = ceilTo_(priceDay * d * (1 - discount_(s, d)), s.roundTo);  // Калькулятор!E17
     });
     return { name: r.name, line: r.line, flavor: r.flavor, gramsPerDay: grams, prices: prices, sale: promo_(prices, s) };
+  }).sort(function (a, b) {
+    // рыба — в конце списка
+    return (a.flavor.indexOf('Рыба') === 0) - (b.flavor.indexOf('Рыба') === 0);
   });
 
   // First Bite: собакам на готовом корме или варёной натуралке; при аллергии на крупы — лист без круп
   let firstBite = [];
   if (inp.pet === 'Собака' && FIRST_BITE_FOODS.indexOf(inp.food) >= 0) {
     const sheet = noGrains ? FIRST_BITE_NO_GRAINS_SHEET : FIRST_BITE_SHEET;
-    firstBite = firstBite_(ss, s, grams, sheet).filter(function (f) {
+    // одна карточка «переходный рацион»: вкусы перечислены, цена «от» — по самому доступному
+    const fb = firstBite_(ss, s, grams, sheet).filter(function (f) {
       return excluded.indexOf(f.allergen) < 0;
-    }).map(function (f) {
-      const prices = { 14: f.price };
-      return { name: sheet + ' · ' + f.flavor, line: sheet, flavor: f.flavor, gramsPerDay: grams, days: f.days, prices: prices, sale: promo_(prices, s, s.promoFirstBite) };
     });
+    if (fb.length) {
+      const min = fb.reduce(function (m, f) { return f.price < m.price ? f : m; });
+      const prices = { 14: min.price };
+      firstBite = [{
+        name: sheet, line: sheet,
+        flavor: fb.map(function (f, i) { return i ? f.flavor.toLowerCase() : f.flavor; }).join(' / '),
+        gramsPerDay: grams, days: min.days, prices: prices, sale: promo_(prices, s, s.promoFirstBite),
+      }];
+    }
   }
 
   // рацион после First Bite — со своей скидкой (−30%), бейдж показывает её же
@@ -335,6 +350,7 @@ function saveLead_(body, inp, grams, price, sale) {
     'Период, дн.': clean(body.period),
     'Цена без скидки, ₾': price,
     'Цена со скидкой, ₾': sale,
+    'Дополнительно': clean((body.extras || []).join(', '), 500),
     'Язык сайта': clean(body.lang),
   };
 

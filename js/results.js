@@ -6,7 +6,8 @@
 (function () {
   const API = () => (window.PAWOLOGY_API_URL || "").trim();
   const cache = {};
-  let st = { status: "idle", key: "", data: null, selected: null, contact: { name: "", phone: "", link: "", address: "", about: "" } };
+  let st = { status: "idle", stage: "form", key: "", data: null, selected: null, extras: {}, hp: "",
+    contact: { name: "", phone: "", link: "", address: "", about: "" } };
   let el = null;
   let notify = () => {};
 
@@ -98,6 +99,7 @@
   const FLAVOR_SLUG = [["Говядина", "beef"], ["Курица", "chicken"], ["Рыба", "fish"]];
   const PHOTOS = ["pb-beef", "pb-chicken", "lm-beef", "lm-chicken", "lm-fish", "lmc-beef", "lmc-chicken", "lmc-fish"];
   function photo(r) {
+    if (r.line.indexOf("First Bite") === 0) return `<div class="r-card__photo"><img src="assets/img/rations/first-bite.webp" alt="" loading="lazy"></div>`;
     const fl = FLAVOR_SLUG.find(([ru]) => r.flavor.indexOf(ru) === 0);
     const key = LINE_SLUG[r.line] && fl ? LINE_SLUG[r.line] + "-" + fl[1] : "";
     if (PHOTOS.includes(key)) return `<div class="r-card__photo"><img src="assets/img/rations/${key}.webp" alt="" loading="lazy"></div>`;
@@ -141,9 +143,53 @@
     </div>`;
   }
 
+  /* ---------- Дополнительные товары (после формы, до отправки) ---------- */
+  const L = (o) => (o ? o[Store.get().lang] || o.ru : "");
+  const extrasList = () => (window.EXTRAS || []).filter((x) => !x.pets || x.pets.includes(Store.get().pet));
+
+  function extraCard(x, i) {
+    const sel = st.extras[x.id];
+    const color = sel ? sel.color : x.colors && x.colors[0].id;
+    return `<li class="x-card q-anim ${sel ? "is-added" : ""}" style="--i:${i}">
+      <div class="x-card__top">
+        <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}">${x.img ? `<img src="assets/img/extras/${x.img}.webp" alt="" loading="lazy">` : x.icon}</div>
+        <div class="x-card__text">
+          <h4 class="x-card__title">${esc(L(x.title))}</h4>
+          <p class="x-card__sub">${esc(L(x.sub))}</p>
+          ${x.price ? `<p class="x-card__price">${x.oldPrice ? `<s>${x.oldPrice} ₾</s> ` : ""}<b>${x.price} ₾</b></p>` : ""}
+        </div>
+      </div>
+      ${x.colors ? `<div class="x-card__colors" role="radiogroup" aria-label="${t("ext.color")}">
+        ${x.colors.map((c) => `<button type="button" class="x-color" role="radio" data-extra-color="${x.id}" data-value="${c.id}" aria-checked="${c.id === color}" style="--c:${c.hex}"><i></i>${esc(L(c.title))}</button>`).join("")}
+      </div>` : ""}
+      <button type="button" class="x-card__add" data-extra="${x.id}" aria-pressed="${!!sel}">${sel ? "✓ " + t("ext.added") : "+ " + t("ext.add")}</button>
+    </li>`;
+  }
+
+  function drawExtras() {
+    const name = esc((A().name || "").trim());
+    el.innerHTML = `<div class="x-head q-anim">
+        <h3 class="r-h">${t("ext.title", { name })}</h3>
+        <p class="q-sub">${t("ext.sub")}</p>
+      </div>
+      <ul class="x-list">${extrasList().map(extraCard).join("")}</ul>`;
+    notify();
+  }
+
+  function extrasForLead() {
+    return extrasList().filter((x) => st.extras[x.id]).map((x) => {
+      const c = x.colors && x.colors.find((k) => k.id === st.extras[x.id].color);
+      return x.title.ru + (c ? " (" + c.title.ru + ")" : "");
+    });
+  }
+
   function draw() {
     if (!el) return;
     const a = A();
+    // экран товаров выглядит отдельной страницей — без заголовка рационов и плашек
+    const step = el.closest(".q-step");
+    if (step) step.classList.toggle("is-extras", st.status === "ready" && st.stage === "extras");
+    if (st.status === "ready" && st.stage === "extras") return drawExtras();
     if (st.status === "sent") {
       el.innerHTML = `<div class="r-done q-anim"><div class="r-done__icon">💌</div>
         <h3>${t("res.sent.title")}</h3><p class="q-sub">${t("res.sent.sub")}</p></div>`;
@@ -198,6 +244,20 @@
         });
         return notify();
       }
+      const add = e.target.closest("[data-extra]");
+      if (add) {
+        const x = (window.EXTRAS || []).find((k) => k.id === add.dataset.extra);
+        if (st.extras[x.id]) delete st.extras[x.id];
+        else st.extras[x.id] = { color: x.colors ? (add.closest(".x-card").querySelector('[aria-checked="true"]') || {}).dataset?.value || x.colors[0].id : null };
+        return drawExtras();
+      }
+      const col = e.target.closest("[data-extra-color]");
+      if (col) {
+        const id = col.dataset.extraColor;
+        col.parentElement.querySelectorAll("[data-extra-color]").forEach((b) => b.setAttribute("aria-checked", String(b === col)));
+        if (st.extras[id]) st.extras[id].color = col.dataset.value;
+        return;
+      }
       if (e.target.closest("[data-retry]")) { st.key = ""; load(); }
     });
     el.addEventListener("input", (e) => {
@@ -224,11 +284,30 @@
       el = container;
       notify = onChange || (() => {});
       bind();
-      if (st.status === "sent") st.status = "idle";
+      if (st.status === "sent") { st.status = "idle"; st.extras = {}; }
+      st.stage = "form";
       load();
+    },
+    inExtras: () => st.status === "ready" && st.stage === "extras",
+    extrasCount: () => Object.keys(st.extras).length,
+    // «Оформить заказ» → экран дополнительных товаров
+    toExtras() {
+      if (!Results.canSubmit()) return;
+      const hp = el.querySelector(".r-hp");
+      st.hp = hp ? hp.value : "";
+      st.stage = "extras";
+      draw();
+    },
+    // «Назад» с экрана товаров — обратно к форме
+    back() {
+      if (!Results.inExtras()) return false;
+      st.stage = "form";
+      draw();
+      return true;
     },
     canSubmit() {
       if (st.status !== "ready") return false;
+      if (st.stage === "extras") return true;
       const hasList = (st.data.rations || []).length + (st.data.firstBite || []).length > 0;
       const c = st.contact;
       // обязательны имя, телефон и ссылка; адрес и «о питомце» — по желанию
@@ -238,14 +317,14 @@
     isSent: () => st.status === "sent",
     async submit() {
       if (!Results.canSubmit()) return false;
-      const hp = el.querySelector(".r-hp");
       const body = {
         answers: Object.assign({}, A(), { pet: Store.get().pet }),
         ration: st.selected ? st.selected.name : "",
         period: st.selected ? st.selected.period : "",
         contact: st.contact,
         lang: Store.get().lang,
-        website: hp ? hp.value : "",
+        extras: extrasForLead(),
+        website: st.hp,
       };
       // text/plain — без предварительного CORS-запроса к Apps Script
       const res = await fetch(API(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) });

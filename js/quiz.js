@@ -155,7 +155,11 @@
   }
   function updateNext() {
     btnNext.disabled = !isValid(STEPS[index]);
-    if (STEPS[index].type === "result") nextLabel.textContent = t(Results.isSent() ? "res.close" : "res.submit");
+    if (STEPS[index].type === "result") {
+      nextLabel.textContent = Results.isSent() ? t("res.close")
+        : Results.inExtras() ? t(Results.extrasCount() ? "ext.continue" : "ext.skip")
+        : t("res.submit");
+    }
   }
 
   function go(to) {
@@ -237,13 +241,24 @@
     if (!isValid(STEPS[index])) return;
     if (STEPS[index].type !== "result") return go(index + 1);
     if (Results.isSent()) return Quiz.close();
+    if (!Results.inExtras()) {
+      Results.toExtras();
+      root.querySelector(".quiz__body").scrollTop = 0;
+      return updateNext();
+    }
     btnNext.disabled = true;
     nextLabel.textContent = t("res.sending");
     try { await Results.submit(); }
     catch (e) { alert(t("res.sendError")); }
     updateNext();
   });
-  btnBack.addEventListener("click", () => go(index - 1));
+  btnBack.addEventListener("click", () => {
+    if (STEPS[index].type === "result" && Results.back()) {
+      root.querySelector(".quiz__body").scrollTop = 0;
+      return updateNext();
+    }
+    go(index - 1);
+  });
   root.querySelectorAll("[data-quiz-close]").forEach((b) => b.addEventListener("click", () => Quiz.close()));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && isOpen) Quiz.close(); });
 
