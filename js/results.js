@@ -251,9 +251,16 @@
       const add = e.target.closest("[data-extra]");
       if (add) {
         const x = (window.EXTRAS || []).find((k) => k.id === add.dataset.extra);
+        const card = add.closest(".x-card");
         if (st.extras[x.id]) delete st.extras[x.id];
-        else st.extras[x.id] = { color: x.colors ? (add.closest(".x-card").querySelector('[aria-checked="true"]') || {}).dataset?.value || x.colors[0].id : null };
-        return drawExtras();
+        else st.extras[x.id] = { color: x.colors ? (card.querySelector('[aria-checked="true"]') || {}).dataset?.value || x.colors[0].id : null };
+        // меняем только эту карточку — без перерисовки всего экрана
+        const on = !!st.extras[x.id];
+        card.classList.remove("q-anim");
+        card.classList.toggle("is-added", on);
+        add.setAttribute("aria-pressed", String(on));
+        add.textContent = on ? "✓ " + t("ext.added") : "+ " + t("ext.add");
+        return notify();
       }
       const col = e.target.closest("[data-extra-color]");
       if (col) {
