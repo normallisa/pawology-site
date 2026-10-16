@@ -409,3 +409,11 @@
   .q-step.is-extras .x-card { padding: 20px; }
   .q-step.is-extras .x-card__title { font-size: 21px; }
 }
+
+/* выбор граммовки — как кнопки цвета */
+.x-chip {
+  height: 36px; min-width: 64px; padding: 0 14px; border-radius: var(--r-pill);
+  background: #fff; border: 1.5px solid var(--line); font-size: 14px; font-weight: 700; color: var(--ink-2);
+  transition: border-color .25s, color .25s;
+}
+.x-chip[aria-checked="true"] { border-color: var(--ink); color: var(--ink); }

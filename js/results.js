@@ -6,7 +6,7 @@
 (function () {
   const API = () => (window.PAWOLOGY_API_URL || "").trim();
   const cache = {};
-  let st = { status: "idle", stage: "form", key: "", data: null, selected: null, extras: {}, hp: "",
+  let st = { status: "idle", stage: "form", key: "", data: null, selected: null, extras: {}, extraVariant: {}, hp: "",
     contact: { name: "", phone: "", link: "", address: "", about: "" } };
   let el = null;
   let notify = () => {};
@@ -154,27 +154,54 @@
   // «100» → «100 г» / «100 g»; если единицы уже вписаны — как есть
   const weightText = (w) => (/^\d+([.,]\d+)?$/.test(String(w).trim()) ? String(w).trim() + (Store.get().lang === "en" ? " g" : " г") : w);
 
-  function extraCard(x, i) {
-    const sel = st.extras[x.id];
+  // товары с одинаковым названием — одна карточка с выбором граммовки (50 / 100 г …)
+  function extraGroups() {
+    const map = new Map();
+    extrasList().forEach((x) => {
+      const key = String(x.title.ru || x.id).trim().toLowerCase();
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(x);
+    });
+    return [...map.values()].map((variants) => {
+      const base = variants.find((v) => v.img) || variants[0];
+      const sorted = variants.slice().sort((p, q) => (parseFloat(p.weight) || 0) - (parseFloat(q.weight) || 0));
+      return { id: variants[0].id, base, variants: sorted };
+    });
+  }
+  const groupById = (id) => extraGroups().find((g) => g.id === id);
+  const currentVariant = (g) => {
+    const vid = (st.extras[g.id] && st.extras[g.id].variant) || st.extraVariant[g.id] || g.variants[0].id;
+    return g.variants.find((v) => v.id === vid) || g.variants[0];
+  };
+
+  function priceHtml(x) {
+    return x.price ? `${x.oldPrice ? `<s>${x.oldPrice}₾</s>` : ""}<b>${x.price}₾</b>${x.discount ? `<span>(−${x.discount}%)</span>` : ""}` : "";
+  }
+
+  function extraCard(g, i) {
+    const x = g.base;
+    const v = currentVariant(g);
+    const sel = st.extras[g.id];
     const color = sel ? sel.color : x.colors && x.colors[0].id;
-    const price = x.price ? `<p class="x-card__price">
-        ${x.oldPrice ? `<s>${x.oldPrice}₾</s>` : ""}<b>${x.price}₾</b>${x.discount ? `<span>(−${x.discount}%)</span>` : ""}
-      </p>` : "";
-    return `<li class="x-item q-anim" style="--i:${i}">
+    const many = g.variants.length > 1;
+    return `<li class="x-item q-anim" style="--i:${i}" data-group="${g.id}">
       <div class="x-card ${sel ? "is-added" : ""}">
         <div class="x-card__top">
           <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}" data-icon="${x.icon}">${x.img ? `<img src="assets/img/extras/${esc(x.img)}.webp" alt="" loading="lazy" onerror="this.parentNode.classList.add('x-card__photo--empty');this.parentNode.textContent=this.parentNode.dataset.icon">` : x.icon}</div>
           <div class="x-card__text">
-            <h4 class="x-card__title">${esc(L(x.title))}${x.weight ? `<span class="x-card__weight">${esc(weightText(x.weight))}</span>` : ""}</h4>
-            ${price}
+            <h4 class="x-card__title">${esc(L(x.title))}${!many && v.weight ? `<span class="x-card__weight">${esc(weightText(v.weight))}</span>` : ""}</h4>
+            <p class="x-card__price">${priceHtml(v)}</p>
           </div>
         </div>
         ${L(x.sub) ? `<p class="x-card__desc">${esc(L(x.sub))}</p>` : ""}
+        ${many ? `<div class="x-card__colors" role="radiogroup" aria-label="${t("ext.weight")}">
+          ${g.variants.map((w) => `<button type="button" class="x-chip" role="radio" data-extra-variant="${g.id}" data-value="${w.id}" aria-checked="${w.id === v.id}">${esc(weightText(w.weight) || "—")}</button>`).join("")}
+        </div>` : ""}
         ${x.colors ? `<div class="x-card__colors" role="radiogroup" aria-label="${t("ext.color")}">
-          ${x.colors.map((c) => `<button type="button" class="x-color" role="radio" data-extra-color="${x.id}" data-value="${c.id}" aria-checked="${c.id === color}" style="--c:${c.hex}"><i></i>${esc(L(c.title))}</button>`).join("")}
+          ${x.colors.map((c) => `<button type="button" class="x-color" role="radio" data-extra-color="${g.id}" data-value="${c.id}" aria-checked="${c.id === color}" style="--c:${c.hex}"><i></i>${esc(L(c.title))}</button>`).join("")}
         </div>` : ""}
       </div>
-      <button type="button" class="x-card__add" data-extra="${x.id}" aria-pressed="${!!sel}">${sel ? "✓ " + t("ext.added") : "+ " + t("ext.add")}</button>
+      <button type="button" class="x-card__add" data-extra="${g.id}" aria-pressed="${!!sel}">${sel ? "✓ " + t("ext.added") : "+ " + t("ext.add")}</button>
     </li>`;
   }
 
@@ -184,14 +211,16 @@
         <h3 class="r-h">${t("ext.title", { name })}</h3>
         <p class="q-sub">${t("ext.sub")}</p>
       </div>
-      <ul class="x-list">${extrasList().map(extraCard).join("")}</ul>`;
+      <ul class="x-list">${extraGroups().map(extraCard).join("")}</ul>`;
     notify();
   }
 
   function extrasForLead() {
-    return extrasList().filter((x) => st.extras[x.id]).map((x) => {
-      const c = x.colors && x.colors.find((k) => k.id === st.extras[x.id].color);
-      return x.title.ru + (c ? " (" + c.title.ru + ")" : "");
+    return extraGroups().filter((g) => st.extras[g.id]).map((g) => {
+      const v = currentVariant(g);
+      const c = g.base.colors && g.base.colors.find((k) => k.id === st.extras[g.id].color);
+      return g.base.title.ru + (g.variants.length > 1 && v.weight ? " " + weightText(v.weight) : "")
+        + (c ? " (" + c.title.ru + ")" : "") + (v.price ? " — " + v.price + " ₾" : "");
     });
   }
 
@@ -258,18 +287,30 @@
       }
       const add = e.target.closest("[data-extra]");
       if (add) {
-        const x = (window.EXTRAS || []).find((k) => k.id === add.dataset.extra);
+        const g = groupById(add.dataset.extra);
         const item = add.closest(".x-item");
         const card = item.querySelector(".x-card");
-        if (st.extras[x.id]) delete st.extras[x.id];
-        else st.extras[x.id] = { color: x.colors ? (card.querySelector('[aria-checked="true"]') || {}).dataset?.value || x.colors[0].id : null };
+        if (st.extras[g.id]) delete st.extras[g.id];
+        else {
+          const col = card.querySelector("[data-extra-color][aria-checked='true']");
+          st.extras[g.id] = { variant: currentVariant(g).id, color: g.base.colors ? (col ? col.dataset.value : g.base.colors[0].id) : null };
+        }
         // меняем только эту карточку — без перерисовки всего экрана
-        const on = !!st.extras[x.id];
+        const on = !!st.extras[g.id];
         item.classList.remove("q-anim");
         card.classList.toggle("is-added", on);
         add.setAttribute("aria-pressed", String(on));
         add.textContent = on ? "✓ " + t("ext.added") : "+ " + t("ext.add");
         return notify();
+      }
+      const vbtn = e.target.closest("[data-extra-variant]");
+      if (vbtn) {
+        const g = groupById(vbtn.dataset.extraVariant);
+        st.extraVariant[g.id] = vbtn.dataset.value;
+        if (st.extras[g.id]) st.extras[g.id].variant = vbtn.dataset.value;
+        vbtn.parentElement.querySelectorAll("[data-extra-variant]").forEach((b) => b.setAttribute("aria-checked", String(b === vbtn)));
+        vbtn.closest(".x-item").querySelector(".x-card__price").innerHTML = priceHtml(currentVariant(g));
+        return;
       }
       const col = e.target.closest("[data-extra-color]");
       if (col) {
