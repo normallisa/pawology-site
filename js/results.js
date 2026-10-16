@@ -70,10 +70,23 @@
     </button>`;
   }
 
+  // фото рациона: assets/img/rations/<линейка>-<вкус>.webp; «без шей» — то же фото, что и вкус
+  const LINE_SLUG = { "Pawfect Balance": "pb", "Let's Meat": "lm", "Let's Meat cats": "lmc" };
+  const FLAVOR_SLUG = [["Говядина", "beef"], ["Курица", "chicken"]];
+  const PHOTOS = ["pb-beef", "pb-chicken", "lm-beef", "lm-chicken", "lmc-beef", "lmc-chicken"];
+  function photo(r) {
+    const fl = FLAVOR_SLUG.find(([ru]) => r.flavor.indexOf(ru) === 0);
+    const key = LINE_SLUG[r.line] && fl ? LINE_SLUG[r.line] + "-" + fl[1] : "";
+    if (PHOTOS.includes(key)) return `<div class="r-card__photo"><img src="assets/img/rations/${key}.webp" alt="" loading="lazy"></div>`;
+    const emoji = r.line.indexOf("First Bite") === 0 ? "🥣" : r.flavor.indexOf("Рыба") === 0 ? "🐟" : "🍖";
+    return `<div class="r-card__photo r-card__photo--empty" aria-hidden="true">${emoji}</div>`;
+  }
+
   function card(r, i) {
     const periods = Object.keys(r.prices);
     const picked = st.selected && st.selected.name === r.name;
     return `<li class="r-card q-anim ${picked ? "is-picked" : ""}" style="--i:${i}">
+      ${photo(r)}
       <div class="r-card__head">
         <span class="r-card__line">${esc(tr(r.line))}</span>
         <span class="r-card__flavor">${esc(tr(r.flavor))}</span>
