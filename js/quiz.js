@@ -131,6 +131,7 @@
     stage.querySelectorAll("[data-combo-src]").forEach((inp) => Combo.attach(inp, () => breedNames()));
 
     const isResult = step.type === "result";
+    if (step.id === "activity") Results.prefetch();
     // на финальном экране переключатель собака/кошка не нужен
     root.querySelector(".quiz__meta .pet-switch").hidden = isResult;
     if (isResult) Results.mount(stage.querySelector("#q-result-body"), updateNext);
@@ -248,6 +249,7 @@
 
   window.Quiz = {
     open(start = 0) {
+      Results.warmup();
       lastFocus = document.activeElement;
       index = start;
       draw("fwd");

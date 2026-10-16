@@ -40,11 +40,16 @@ const PROMO_AFTER_FB_LABEL = 'Скидка на рацион после First Bi
 const PROMO_AFTER_FB_DEFAULT = 0.3;
 const PROMO_SHOWN_DEFAULT = 0.5;
 
+// Данные листов кэшируются на 5 минут — так ответ быстрее.
+// Изменения в таблице попадут на сайт максимум через 5 минут.
+const CACHE_SECONDS = 300;
+
 /* ------------------------------ HTTP ------------------------------ */
 
 function doGet(e) {
   try {
     const p = e.parameter || {};
+    if (p.action === 'ping') return json_({ ok: true });   // «разбудить» скрипт
     if (p.action !== 'calc') return json_({ ok: false, error: 'unknown action' });
     return json_(Object.assign({ ok: true }, calc_(parseInput_(p))));
   } catch (err) {
@@ -97,7 +102,7 @@ function parseInput_(p) {
 
 function calc_(inp) {
   const ss = SpreadsheetApp.getActive();
-  const s = settings_(ss);
+  const s = cached_('settings', function () { return settings_(ss); });
 
   // суточная норма — как в листе «Калькулятор» (B11:B13)
   const normPct = inp.age > s.seniorAge ? s.normSenior : (inp.activity === 'высокая' ? s.normHigh : s.norm);
@@ -108,7 +113,7 @@ function calc_(inp) {
   const noGrains = inp.allergies.indexOf('grains') >= 0;
   const chickenAllergy = inp.allergies.indexOf('chicken') >= 0;
 
-  const rations = catalog_(ss).filter(function (r) {
+  const rations = cached_('catalog', function () { return catalog_(ss); }).filter(function (r) {
     if (!r.active || r.kind !== inp.pet) return false;
     if (r.flavor.indexOf(HIDE_RECIPE_MARK) >= 0) return false;
     // «без шей» показываем только при аллергии на курицу
@@ -156,6 +161,16 @@ function promo_(prices, s, rate) {
   const out = {};
   Object.keys(prices).forEach(function (k) { out[k] = ceilTo_(prices[k] * (1 - r), s.roundTo); });
   return out;
+}
+
+/** Берёт значение из кэша скрипта или считает и кладёт туда на CACHE_SECONDS. */
+function cached_(key, fn) {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get(key);
+  if (hit) return JSON.parse(hit);
+  const val = fn();
+  try { cache.put(key, JSON.stringify(val), CACHE_SECONDS); } catch (e) { /* слишком большое — просто не кэшируем */ }
+  return val;
 }
 
 function packPerDay_(g, s) {
@@ -237,7 +252,7 @@ function catalog_(ss) {
 function firstBite_(ss, s, normGrams, sheetName) {
   const sh = ss.getSheetByName(sheetName);
   if (!sh) throw new Error('Не найден лист: ' + sheetName);
-  const v = sh.getDataRange().getValues();
+  const v = cached_('sheet:' + sheetName, function () { return sh.getDataRange().getValues(); });
   const findRow = function (pred, from) {
     for (let i = from || 0; i < v.length; i++) if (pred(v[i])) return i;
     return -1;

@@ -17,7 +17,7 @@
   const EN = { "Говядина": "Beef", "Курица": "Chicken", "Рыба": "Fish", "Баранина": "Lamb", "без шей": "no necks", "кошки": "cats" };
   const tr = (s) => (Store.get().lang === "en" ? String(s).replace(/Говядина|Курица|Рыба|Баранина|без шей|кошки/g, (m) => EN[m]) : s);
 
-  function query() {
+  function query(activity) {
     const a = A();
     const p = new URLSearchParams({
       action: "calc",
@@ -25,11 +25,29 @@
       weight: a.weight || "",
       age: a.age || "",
       ageUnit: a.ageUnit || "years",
-      activity: a.activity || "",
+      activity: activity || a.activity || "",
       allergies: (a.allergies || []).join(","),
       food: a.food || "",
     });
     return p.toString();
+  }
+
+  // один запрос на один набор ответов: повторные вызовы ждут тот же ответ
+  const inflight = {};
+  function request(key) {
+    if (cache[key]) return Promise.resolve(cache[key]);
+    if (!inflight[key]) {
+      inflight[key] = fetch(API() + "?" + key)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.ok) throw new Error(data.error || "error");
+          cache[key] = data;
+          preloadPhotos(data);
+          return data;
+        })
+        .finally(() => { delete inflight[key]; });
+    }
+    return inflight[key];
   }
 
   async function load() {
@@ -41,18 +59,23 @@
     if (cache[key]) { st.data = cache[key]; st.status = "ready"; preselect(st.data); return draw(); }
     st.status = "loading"; draw();
     try {
-      const res = await fetch(API() + "?" + key);
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "error");
-      cache[key] = data;
-      preselect(data);
+      const data = await request(key);
       if (st.key !== key) return;
       st.data = data; st.status = "ready";
+      preselect(data);
     } catch (e) {
       if (st.key !== key) return;
       st.status = "error";
     }
     draw();
+  }
+
+  // фото рационов из ответа — грузим заранее, чтобы карточки появились сразу с картинками
+  function preloadPhotos(data) {
+    (data.rations || []).concat(data.firstBite || []).forEach((r) => {
+      const m = photo(r).match(/src="([^"]+)"/);
+      if (m) new Image().src = m[1];
+    });
   }
 
   // рекомендуемый вариант выбран заранее: First Bite, если он есть, иначе первый рацион
@@ -186,6 +209,17 @@
   }
 
   window.Results = {
+    // «будим» скрипт Google при открытии квиза, чтобы первый расчёт не ждал его запуска
+    warmup() {
+      if (!API() || Results._warm) return;
+      Results._warm = true;
+      fetch(API() + "?action=ping").catch(() => {});
+    },
+    // на шаге «Активность» остальные ответы уже известны — считаем все три варианта заранее
+    prefetch() {
+      if (!API()) return;
+      ["low", "medium", "high"].forEach((act) => request(query(act)).catch(() => {}));
+    },
     mount(container, onChange) {
       el = container;
       notify = onChange || (() => {});
