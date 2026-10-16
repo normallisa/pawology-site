@@ -154,18 +154,23 @@
   function extraCard(x, i) {
     const sel = st.extras[x.id];
     const color = sel ? sel.color : x.colors && x.colors[0].id;
-    return `<li class="x-card q-anim ${sel ? "is-added" : ""}" style="--i:${i}">
-      <div class="x-card__top">
-        <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}" data-icon="${x.icon}">${x.img ? `<img src="assets/img/extras/${esc(x.img)}.webp" alt="" loading="lazy" onerror="this.parentNode.classList.add('x-card__photo--empty');this.parentNode.textContent=this.parentNode.dataset.icon">` : x.icon}</div>
-        <div class="x-card__text">
-          <h4 class="x-card__title">${esc(L(x.title))}</h4>
-          <p class="x-card__sub">${esc(L(x.sub))}</p>
-          ${x.price ? `<p class="x-card__price">${x.oldPrice ? `<s>${x.oldPrice} ₾</s> ` : ""}<b>${x.price} ₾</b></p>` : ""}
+    const price = x.price ? `<p class="x-card__price">
+        ${x.oldPrice ? `<s>${x.oldPrice}₾</s>` : ""}<b>${x.price}₾</b>${x.discount ? `<span>(−${x.discount}%)</span>` : ""}
+      </p>` : "";
+    return `<li class="x-item q-anim" style="--i:${i}">
+      <div class="x-card ${sel ? "is-added" : ""}">
+        <div class="x-card__top">
+          <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}" data-icon="${x.icon}">${x.img ? `<img src="assets/img/extras/${esc(x.img)}.webp" alt="" loading="lazy" onerror="this.parentNode.classList.add('x-card__photo--empty');this.parentNode.textContent=this.parentNode.dataset.icon">` : x.icon}</div>
+          <div class="x-card__text">
+            <h4 class="x-card__title">${esc(L(x.title))}${x.weight ? `<span class="x-card__weight">${esc(x.weight)}</span>` : ""}</h4>
+            ${price}
+          </div>
         </div>
+        ${L(x.sub) ? `<p class="x-card__desc">${esc(L(x.sub))}</p>` : ""}
+        ${x.colors ? `<div class="x-card__colors" role="radiogroup" aria-label="${t("ext.color")}">
+          ${x.colors.map((c) => `<button type="button" class="x-color" role="radio" data-extra-color="${x.id}" data-value="${c.id}" aria-checked="${c.id === color}" style="--c:${c.hex}"><i></i>${esc(L(c.title))}</button>`).join("")}
+        </div>` : ""}
       </div>
-      ${x.colors ? `<div class="x-card__colors" role="radiogroup" aria-label="${t("ext.color")}">
-        ${x.colors.map((c) => `<button type="button" class="x-color" role="radio" data-extra-color="${x.id}" data-value="${c.id}" aria-checked="${c.id === color}" style="--c:${c.hex}"><i></i>${esc(L(c.title))}</button>`).join("")}
-      </div>` : ""}
       <button type="button" class="x-card__add" data-extra="${x.id}" aria-pressed="${!!sel}">${sel ? "✓ " + t("ext.added") : "+ " + t("ext.add")}</button>
     </li>`;
   }
@@ -251,12 +256,13 @@
       const add = e.target.closest("[data-extra]");
       if (add) {
         const x = (window.EXTRAS || []).find((k) => k.id === add.dataset.extra);
-        const card = add.closest(".x-card");
+        const item = add.closest(".x-item");
+        const card = item.querySelector(".x-card");
         if (st.extras[x.id]) delete st.extras[x.id];
         else st.extras[x.id] = { color: x.colors ? (card.querySelector('[aria-checked="true"]') || {}).dataset?.value || x.colors[0].id : null };
         // меняем только эту карточку — без перерисовки всего экрана
         const on = !!st.extras[x.id];
-        card.classList.remove("q-anim");
+        item.classList.remove("q-anim");
         card.classList.toggle("is-added", on);
         add.setAttribute("aria-pressed", String(on));
         add.textContent = on ? "✓ " + t("ext.added") : "+ " + t("ext.add");

@@ -202,9 +202,10 @@ function extras_() {
     return -1;
   };
   const c = {
-    id: col('ID'), stock: col('В наличии'), pets: col('Для кого'), title: col('Название'), sub: col('Подзаголовок'),
+    id: col('ID'), stock: col('В наличии'), pets: col('Для кого'), title: col('Название'), weight: col('Вес'),
+    sub: col('Описание') >= 0 ? col('Описание') : col('Подзаголовок'),
     price: col('Цена, ₾'), discount: col('Скидка'), sale: col('Цена со скидкой'), colors: col('Цвета'), photo: col('Фото'),
-    titleEn: col('Название EN'), subEn: col('Подзаголовок EN'),
+    titleEn: col('Название EN'), subEn: col('Описание EN') >= 0 ? col('Описание EN') : col('Подзаголовок EN'),
   };
   const COLORS = {
     'розовая': ['#F4A3A3', 'pink'], 'зелёная': ['#A8D89A', 'green'], 'зеленая': ['#A8D89A', 'green'],
@@ -233,8 +234,12 @@ function extras_() {
       pets: who === 'Собаки' ? ['dog'] : who === 'Кошки' ? ['cat'] : null,
       title: { ru: String(get(r, c.title)), en: String(get(r, c.titleEn)) || String(get(r, c.title)) },
       sub: { ru: String(get(r, c.sub)), en: String(get(r, c.subEn)) || String(get(r, c.sub)) },
+      weight: String(get(r, c.weight)).trim(),
       price: sale,
       oldPrice: price != null && sale != null && sale < price ? price : null,
+      // процент — как вписан в таблице; если не вписан, а цены разные — считаем по ценам
+      discount: num(get(r, c.discount)) ? Math.round(num(get(r, c.discount)) * (num(get(r, c.discount)) <= 1 ? 100 : 1))
+        : (price && sale != null && sale < price ? Math.round((1 - sale / price) * 100) : null),
       colors: colors.length ? colors : null,
     };
   });
