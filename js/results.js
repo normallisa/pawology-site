@@ -72,8 +72,8 @@
 
   // фото рациона: assets/img/rations/<линейка>-<вкус>.webp; «без шей» — то же фото, что и вкус
   const LINE_SLUG = { "Pawfect Balance": "pb", "Let's Meat": "lm", "Let's Meat cats": "lmc" };
-  const FLAVOR_SLUG = [["Говядина", "beef"], ["Курица", "chicken"]];
-  const PHOTOS = ["pb-beef", "pb-chicken", "lm-beef", "lm-chicken", "lmc-beef", "lmc-chicken"];
+  const FLAVOR_SLUG = [["Говядина", "beef"], ["Курица", "chicken"], ["Рыба", "fish"]];
+  const PHOTOS = ["pb-beef", "pb-chicken", "lm-beef", "lm-chicken", "lm-fish", "lmc-beef", "lmc-chicken", "lmc-fish"];
   function photo(r) {
     const fl = FLAVOR_SLUG.find(([ru]) => r.flavor.indexOf(ru) === 0);
     const key = LINE_SLUG[r.line] && fl ? LINE_SLUG[r.line] + "-" + fl[1] : "";
