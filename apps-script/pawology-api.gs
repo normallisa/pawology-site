@@ -21,6 +21,9 @@
 // Заявки с сайта пишутся в отдельную таблицу «Pawology — заказы с сайта», вкладка «Заказы»
 const LEADS_SPREADSHEET_ID = '1B1uDGlFF77AuoL8x9LqlhC3PupQiTIRo-34i7sCKkYg';
 const LEADS_SHEET = 'Заказы';
+// Товары допродажи (мороженое, супы, миски) — таблица «Pawology — товары допродажи», вкладка «Товары»
+const EXTRAS_SPREADSHEET_ID = '1ddAxCQfXzaZaLQeAwzXQ9UI7lZ2Q4XFi3OV7eWfFUuI';
+const EXTRAS_SHEET = 'Товары';
 const PERIODS = [7, 30];            // какие сроки показываем на сайте
 const HIDE_RECIPE_MARK = 'индивидуальный';
 const NO_NECKS_MARK = 'без шей';
@@ -56,6 +59,7 @@ function doGet(e) {
   try {
     const p = e.parameter || {};
     if (p.action === 'ping') return json_({ ok: true });   // «разбудить» скрипт
+    if (p.action === 'extras') return json_({ ok: true, items: cached_('extras', extras_) });
     if (p.action !== 'calc') return json_({ ok: false, error: 'unknown action' });
     return json_(Object.assign({ ok: true }, calc_(parseInput_(p))));
   } catch (err) {
@@ -187,6 +191,53 @@ function promo_(prices, s, rate) {
   const out = {};
   Object.keys(prices).forEach(function (k) { out[k] = ceilTo_(prices[k] * (1 - r), s.roundTo); });
   return out;
+}
+
+/** Товары допродажи: только те, у кого стоит галочка «В наличии». */
+function extras_() {
+  const v = SpreadsheetApp.openById(EXTRAS_SPREADSHEET_ID).getSheetByName(EXTRAS_SHEET).getDataRange().getValues();
+  const h = v[0].map(function (x) { return String(x).trim(); });
+  const col = function (start) {
+    for (let i = 0; i < h.length; i++) if (h[i].indexOf(start) === 0) return i;
+    return -1;
+  };
+  const c = {
+    id: col('ID'), stock: col('В наличии'), pets: col('Для кого'), title: col('Название'), sub: col('Подзаголовок'),
+    price: col('Цена, ₾'), discount: col('Скидка'), sale: col('Цена со скидкой'), colors: col('Цвета'), photo: col('Фото'),
+    titleEn: col('Название EN'), subEn: col('Подзаголовок EN'),
+  };
+  const COLORS = {
+    'розовая': ['#F4A3A3', 'pink'], 'зелёная': ['#A8D89A', 'green'], 'зеленая': ['#A8D89A', 'green'],
+    'голубая': ['#9CC9F0', 'blue'], 'синяя': ['#6F9EDB', 'blue'], 'жёлтая': ['#F6D86B', 'yellow'], 'желтая': ['#F6D86B', 'yellow'],
+    'бежевая': ['#E8D9C0', 'beige'], 'белая': ['#FFFFFF', 'white'], 'чёрная': ['#2B2B2B', 'black'], 'черная': ['#2B2B2B', 'black'],
+    'серая': ['#B9BBBE', 'grey'], 'оранжевая': ['#F5A35C', 'orange'], 'фиолетовая': ['#B79BE0', 'purple'],
+  };
+  const get = function (row, i) { return i < 0 ? '' : row[i]; };
+  const num = function (x) { const n = parseFloat(String(x).replace(',', '.')); return isNaN(n) ? null : n; };
+  return v.slice(1).filter(function (r) {
+    return String(get(r, c.id)).trim() && (get(r, c.stock) === true || String(get(r, c.stock)).toUpperCase() === 'TRUE');
+  }).map(function (r) {
+    const id = String(get(r, c.id)).trim();
+    const who = String(get(r, c.pets)).trim();
+    const price = num(get(r, c.price));
+    let sale = num(get(r, c.sale));
+    if (sale == null && price != null) sale = price;
+    const colors = String(get(r, c.colors)).split(',').map(function (x) { return x.trim(); }).filter(String).map(function (name) {
+      const k = COLORS[name.toLowerCase()] || ['#D9D6CE', name];
+      return { id: k[1] + '-' + name.toLowerCase(), hex: k[0], title: { ru: name, en: k[1] } };
+    });
+    return {
+      id: id,
+      img: String(get(r, c.photo)).trim(),
+      icon: id.indexOf('icecream') === 0 ? '🍨' : id.indexOf('soup') === 0 || id.indexOf('bowl') === 0 ? '🥣' : '🎁',
+      pets: who === 'Собаки' ? ['dog'] : who === 'Кошки' ? ['cat'] : null,
+      title: { ru: String(get(r, c.title)), en: String(get(r, c.titleEn)) || String(get(r, c.title)) },
+      sub: { ru: String(get(r, c.sub)), en: String(get(r, c.subEn)) || String(get(r, c.sub)) },
+      price: sale,
+      oldPrice: price != null && sale != null && sale < price ? price : null,
+      colors: colors.length ? colors : null,
+    };
+  });
 }
 
 /** Берёт значение из кэша скрипта или считает и кладёт туда на CACHE_SECONDS. */

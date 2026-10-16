@@ -156,7 +156,7 @@
     const color = sel ? sel.color : x.colors && x.colors[0].id;
     return `<li class="x-card q-anim ${sel ? "is-added" : ""}" style="--i:${i}">
       <div class="x-card__top">
-        <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}">${x.img ? `<img src="assets/img/extras/${x.img}.webp" alt="" loading="lazy">` : x.icon}</div>
+        <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}" data-icon="${x.icon}">${x.img ? `<img src="assets/img/extras/${esc(x.img)}.webp" alt="" loading="lazy" onerror="this.parentNode.classList.add('x-card__photo--empty');this.parentNode.textContent=this.parentNode.dataset.icon">` : x.icon}</div>
         <div class="x-card__text">
           <h4 class="x-card__title">${esc(L(x.title))}</h4>
           <p class="x-card__sub">${esc(L(x.sub))}</p>
@@ -292,6 +292,11 @@
       if (!API() || Results._warm) return;
       Results._warm = true;
       fetch(API() + "?action=ping").catch(() => {});
+      // товары допродажи — из Google-таблицы; если не ответила, остаётся список из extras.js
+      fetch(API() + "?action=extras")
+        .then((r) => r.json())
+        .then((d) => { if (d.ok && Array.isArray(d.items)) window.EXTRAS = d.items; })
+        .catch(() => {});
     },
     // на шаге «Активность» остальные ответы уже известны — считаем все три варианта заранее
     prefetch() {
