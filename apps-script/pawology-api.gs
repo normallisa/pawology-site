@@ -12,11 +12,15 @@
  * нормы, скидки, упаковка) читаются из таблицы при каждом запросе.
  * Если меняется само ПРАВИЛО расчёта в таблице — этот файл нужно поправить так же.
  *
+ * Заявки уходят в отдельную таблицу (LEADS_SPREADSHEET_ID ниже).
+ *
  * Установка: Расширения → Apps Script → вставить этот код → Развернуть →
  * Новое развёртывание → Веб-приложение (Выполнять от: меня, Доступ: все) → скопировать URL.
  */
 
-const LEADS_SHEET = 'Заявки с сайта';
+// Заявки с сайта пишутся в отдельную таблицу «Pawology — заказы с сайта», вкладка «Заказы»
+const LEADS_SPREADSHEET_ID = '1B1uDGlFF77AuoL8x9LqlhC3PupQiTIRo-34i7sCKkYg';
+const LEADS_SHEET = 'Заказы';
 const PERIODS = [7, 30];            // какие сроки показываем на сайте
 const HIDE_RECIPE_MARK = 'индивидуальный';
 const NO_NECKS_MARK = 'без шей';
@@ -313,7 +317,7 @@ function firstBite_(ss, s, normGrams, sheetName) {
 /* ------------------------------ Заявки ------------------------------ */
 
 function saveLead_(body, inp, grams, price, sale) {
-  const ss = SpreadsheetApp.getActive();
+  const ss = SpreadsheetApp.openById(LEADS_SPREADSHEET_ID);
   const a = body.answers || {};
   const c = body.contact || {};
   // коды с сайта → понятные менеджеру слова
@@ -328,6 +332,7 @@ function saveLead_(body, inp, grams, price, sale) {
 
   // значения по названиям колонок: новые колонки добавятся в конец сами
   const row = {
+    'Статус': 'Новая',
     'Дата': new Date(),
     'Имя клиента': clean(c.name),
     'Телефон': clean(c.phone),
