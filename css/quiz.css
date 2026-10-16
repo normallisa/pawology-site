@@ -382,3 +382,11 @@
 .q-step.is-extras > .q-title, .q-step.is-extras > .q-sub, .q-step.is-extras .q-summary { display: none; }
 .q-step.is-extras .x-head { margin-top: 0; }
 .q-step.is-extras .x-head .r-h { font-size: clamp(26px, 5vw, 40px); }
+
+/* телефон: +995 зафиксирован слева */
+.field--phone .field__prefix {
+  position: absolute; left: 20px; bottom: 11px; z-index: 1;
+  font: 600 16px/1.2 var(--font-body); color: var(--ink); pointer-events: none;
+}
+.field--phone input { padding-left: 66px; }
+.field--phone label { left: 21px; transform: translateY(-112%) scale(.78); color: var(--ink-2); }

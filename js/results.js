@@ -130,7 +130,11 @@
       <p class="q-sub">${t("res.form.sub")}</p>
       <div class="r-form__fields">
         ${input("name", "text", "name", 60, true)}
-        ${input("phone", "tel", "tel", 30, true)}
+        <div class="field field--phone">
+          <span class="field__prefix" aria-hidden="true">+995</span>
+          <input id="r-phone" data-contact="phone" data-phone type="tel" inputmode="numeric" placeholder=" " maxlength="12" value="${esc(c.phone)}" autocomplete="tel-national" required>
+          <label for="r-phone">${t("res.f.phone")}<i class="req" aria-hidden="true">*</i></label>
+        </div>
         ${input("link", "text", "off", 120, true)}
         ${input("address", "text", "street-address", 200)}
         <div class="field field--area">
@@ -192,7 +196,7 @@
     if (st.status === "ready" && st.stage === "extras") return drawExtras();
     if (st.status === "sent") {
       el.innerHTML = `<div class="r-done q-anim"><div class="r-done__icon">💌</div>
-        <h3>${t("res.sent.title")}</h3><p class="q-sub">${t("res.sent.sub")}</p></div>`;
+        <h3>${t("res.sent.title", { name: esc(st.contact.name.trim()) })}</h3><p class="q-sub">${t("res.sent.sub")}</p></div>`;
       return notify();
     }
     if (st.status === "nokey") {
@@ -263,6 +267,13 @@
     el.addEventListener("input", (e) => {
       const f = e.target.closest("[data-contact]");
       if (!f) return;
+      if (f.dataset.contact === "phone") {
+        // +995 уже стоит; клиент вводит 9 цифр, показываем как 599 12 34 56
+        let d = f.value.replace(/\D/g, "");
+        if (d.startsWith("995") && d.length > 9) d = d.slice(3);
+        d = d.slice(0, 9);
+        f.value = [d.slice(0, 3), d.slice(3, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(" ");
+      }
       st.contact[f.dataset.contact] = f.value;
       notify();
     });
@@ -312,7 +323,7 @@
       const c = st.contact;
       // обязательны имя, телефон и ссылка; адрес и «о питомце» — по желанию
       return (!hasList || !!st.selected) && c.name.trim().length > 1
-        && c.phone.replace(/\D/g, "").length >= 7 && c.link.trim().length >= 3;
+        && c.phone.replace(/\D/g, "").length === 9 && c.link.trim().length >= 3;
     },
     isSent: () => st.status === "sent",
     async submit() {
@@ -321,7 +332,7 @@
         answers: Object.assign({}, A(), { pet: Store.get().pet }),
         ration: st.selected ? st.selected.name : "",
         period: st.selected ? st.selected.period : "",
-        contact: st.contact,
+        contact: Object.assign({}, st.contact, { phone: "+995 " + st.contact.phone }),
         lang: Store.get().lang,
         extras: extrasForLead(),
         website: st.hp,
