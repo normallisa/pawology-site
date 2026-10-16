@@ -151,6 +151,9 @@
   const L = (o) => (o ? o[Store.get().lang] || o.ru : "");
   const extrasList = () => (window.EXTRAS || []).filter((x) => !x.pets || x.pets.includes(Store.get().pet));
 
+  // «100» → «100 г» / «100 g»; если единицы уже вписаны — как есть
+  const weightText = (w) => (/^\d+([.,]\d+)?$/.test(String(w).trim()) ? String(w).trim() + (Store.get().lang === "en" ? " g" : " г") : w);
+
   function extraCard(x, i) {
     const sel = st.extras[x.id];
     const color = sel ? sel.color : x.colors && x.colors[0].id;
@@ -162,7 +165,7 @@
         <div class="x-card__top">
           <div class="x-card__photo ${x.img ? "" : "x-card__photo--empty"}" data-icon="${x.icon}">${x.img ? `<img src="assets/img/extras/${esc(x.img)}.webp" alt="" loading="lazy" onerror="this.parentNode.classList.add('x-card__photo--empty');this.parentNode.textContent=this.parentNode.dataset.icon">` : x.icon}</div>
           <div class="x-card__text">
-            <h4 class="x-card__title">${esc(L(x.title))}${x.weight ? `<span class="x-card__weight">${esc(x.weight)}</span>` : ""}</h4>
+            <h4 class="x-card__title">${esc(L(x.title))}${x.weight ? `<span class="x-card__weight">${esc(weightText(x.weight))}</span>` : ""}</h4>
             ${price}
           </div>
         </div>

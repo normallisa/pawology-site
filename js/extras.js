@@ -9,12 +9,12 @@
    ========================================================= */
 window.EXTRAS = [
   {
-    id: "icecream-apple", img: "icecream-apple", icon: "🍨", pets: ["dog"],
+    id: "icecream-apple", img: "icecream-apple-pie", icon: "🍨", pets: ["dog"],
     title: { ru: "Мороженое «Яблоко»", en: "Apple ice cream" },
     sub: { ru: "Описание скоро добавим", en: "Description coming soon" },
   },
   {
-    id: "icecream-blueberry", img: "icecream-blueberry", icon: "🍨", pets: ["dog"],
+    id: "icecream-blueberry", img: "icecream-vitamin-boost", icon: "🍨", pets: ["dog"],
     title: { ru: "Мороженое «Черника»", en: "Blueberry ice cream" },
     sub: { ru: "Описание скоро добавим", en: "Description coming soon" },
   },
@@ -29,7 +29,7 @@ window.EXTRAS = [
     sub: { ru: "Описание скоро добавим", en: "Description coming soon" },
   },
   {
-    id: "soup-1", img: "soup-1", icon: "🥣",
+    id: "soup-1", icon: "🥣",
     title: { ru: "Суп", en: "Soup" },
     sub: { ru: "Описание скоро добавим", en: "Description coming soon" },
   },
