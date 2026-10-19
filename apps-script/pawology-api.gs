@@ -118,7 +118,8 @@ function calc_(inp) {
 
   // суточная норма — как в листе «Калькулятор» (B11:B13)
   const normPct = inp.age > s.seniorAge ? s.normSenior : (inp.activity === 'высокая' ? s.normHigh : s.norm);
-  const grams = Math.floor(inp.weight * 1000 * normPct / s.step) * s.step;
+  // вниз до шага, но не меньше минимальной порции (Настройки «Минимальная порция, г»)
+  const grams = Math.max(Math.floor(inp.weight * 1000 * normPct / s.step) * s.step, s.minPortion);
 
   const meatAllergens = { chicken: 'Курица', beef: 'Говядина', fish: 'Рыба', lamb: 'Баранина' };
   const excluded = inp.allergies.map(function (a) { return meatAllergens[a]; }).filter(String);
@@ -343,6 +344,7 @@ function settings_(ss) {
     normSenior: need('Норма для пожилых'),
     seniorAge: need('Пожилой возраст: старше, лет'),
     step: need('Шаг граммовки, г'),
+    minPortion: opt('Минимальная порция, г', 0),
     bigFrom: need('Большая порция: от, г'),
     vacSmall: need('Вакуумный пакетик, малая порция, ₾'),
     vacBig: need('Вакуумный пакетик, большая порция, ₾'),
