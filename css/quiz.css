@@ -417,3 +417,6 @@
   transition: border-color .25s, color .25s;
 }
 .x-chip[aria-checked="true"] { border-color: var(--ink); color: var(--ink); }
+
+/* подписи полей формы — в одну строку, без наезда на поле */
+.r-form .field label { max-width: calc(100% - 40px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
