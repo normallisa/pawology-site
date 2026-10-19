@@ -26,7 +26,8 @@
       weight: a.weight || "",
       age: a.age || "",
       ageUnit: a.ageUnit || "years",
-      activity: activity || a.activity || "",
+      // для расчёта «низкая» = «средняя» (норма меняется только при высокой) — один запрос на оба
+      activity: (activity || a.activity) === "high" ? "high" : "medium",
       allergies: (a.allergies || []).join(","),
       food: a.food || "",
     });
@@ -339,19 +340,26 @@
   window.Results = {
     // «будим» скрипт Google при открытии квиза, чтобы первый расчёт не ждал его запуска
     warmup() {
-      if (!API() || Results._warm) return;
+      if (!API()) return;
+      // скрипт засыпает через несколько минут простоя — будим снова, если давно не трогали
+      const now = Date.now();
+      if (now - (Results._pingAt || 0) > 4 * 60 * 1000) {
+        Results._pingAt = now;
+        fetch(API() + "?action=ping").catch(() => {});
+      }
+      if (Results._warm) return;
       Results._warm = true;
-      fetch(API() + "?action=ping").catch(() => {});
       // товары допродажи — из Google-таблицы; если не ответила, остаётся список из extras.js
       fetch(API() + "?action=extras")
         .then((r) => r.json())
         .then((d) => { if (d.ok && Array.isArray(d.items)) window.EXTRAS = d.items; })
         .catch(() => {});
     },
-    // на шаге «Активность» остальные ответы уже известны — считаем все три варианта заранее
+    // на шаге «Активность» остальные ответы уже известны — считаем оба варианта заранее
     prefetch() {
       if (!API()) return;
-      ["low", "medium", "high"].forEach((act) => request(query(act)).catch(() => {}));
+      // по очереди, а не параллельно: параллельные запросы будят у Google новые «холодные» копии скрипта
+      request(query("medium")).catch(() => {}).then(() => request(query("high")).catch(() => {}));
     },
     mount(container, onChange) {
       el = container;
