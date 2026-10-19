@@ -420,3 +420,6 @@
 
 /* подписи полей формы — в одну строку, без наезда на поле */
 .r-form .field label { max-width: calc(100% - 40px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* значки пола — svg, т.к. символы ♂/♀ в шрифтах сидят ниже центра */
+.q-sex { width: 55%; height: 55%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }

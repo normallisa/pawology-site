@@ -49,16 +49,18 @@ const PROMO_AFTER_FB_LABEL = 'Скидка на рацион после First Bi
 const PROMO_AFTER_FB_DEFAULT = 0.3;
 const PROMO_SHOWN_DEFAULT = 0.5;
 
-// Данные листов кэшируются на 5 минут — так ответ быстрее.
-// Изменения в таблице попадут на сайт максимум через 5 минут.
-const CACHE_SECONDS = 300;
+// Данные листов хранятся в кэше скрипта — так ответ быстрее.
+// Триггер warmCache (ставится один раз функцией installWarmup) обновляет кэш каждые 5 минут:
+// изменения в таблице попадут на сайт максимум через 5 минут, а клиент никогда не ждёт чтения листов.
+const CACHE_SECONDS = 900;
+const CACHE_CHUNK = 90000;          // лимит одной записи кэша — 100 КБ, большие листы режем на части
 
 /* ------------------------------ HTTP ------------------------------ */
 
 function doGet(e) {
   try {
     const p = e.parameter || {};
-    if (p.action === 'ping') return json_({ ok: true });   // «разбудить» скрипт
+    if (p.action === 'ping') { warm_(false); return json_({ ok: true }); }   // «разбудить» скрипт и прогреть кэш
     if (p.action === 'extras') return json_({ ok: true, items: cached_('extras', extras_) });
     if (p.action !== 'calc') return json_({ ok: false, error: 'unknown action' });
     return json_(Object.assign({ ok: true }, calc_(parseInput_(p))));
@@ -246,13 +248,63 @@ function extras_() {
 }
 
 /** Берёт значение из кэша скрипта или считает и кладёт туда на CACHE_SECONDS. */
-function cached_(key, fn) {
+function cached_(key, fn, force) {
   const cache = CacheService.getScriptCache();
-  const hit = cache.get(key);
-  if (hit) return JSON.parse(hit);
+  if (!force) {
+    const hit = cacheGet_(cache, key);
+    if (hit !== null) return hit;
+  }
   const val = fn();
-  try { cache.put(key, JSON.stringify(val), CACHE_SECONDS); } catch (e) { /* слишком большое — просто не кэшируем */ }
+  cachePut_(cache, key, val);
   return val;
+}
+
+// большие значения (листы First Bite) не влезают в одну запись — храним частями: key#n + key#0..n-1
+function cacheGet_(cache, key) {
+  const n = cache.get(key + '#n');
+  if (!n) return null;
+  const keys = [];
+  for (let i = 0; i < Number(n); i++) keys.push(key + '#' + i);
+  const parts = cache.getAll(keys);
+  let str = '';
+  for (let i = 0; i < keys.length; i++) {
+    if (parts[keys[i]] == null) return null;
+    str += parts[keys[i]];
+  }
+  return JSON.parse(str);
+}
+
+function cachePut_(cache, key, val) {
+  const str = JSON.stringify(val);
+  const map = {};
+  let n = 0;
+  for (let i = 0; i < str.length; i += CACHE_CHUNK) map[key + '#' + (n++)] = str.slice(i, i + CACHE_CHUNK);
+  map[key + '#n'] = String(n);
+  try { cache.putAll(map, CACHE_SECONDS); } catch (e) { /* не влезло — просто не кэшируем */ }
+}
+
+/** Заранее читает все листы в кэш. force=true — перечитать, даже если кэш ещё живой. */
+function warm_(force) {
+  const ss = SpreadsheetApp.getActive();
+  cached_('settings', function () { return settings_(ss); }, force);
+  cached_('catalog', function () { return catalog_(ss); }, force);
+  [FIRST_BITE_SHEET, FIRST_BITE_NO_GRAINS_SHEET].forEach(function (name) {
+    const sh = ss.getSheetByName(name);
+    if (sh) cached_('sheet:' + name, function () { return sh.getDataRange().getValues(); }, force);
+  });
+  cached_('extras', extras_, force);
+}
+
+/** Для триггера: каждые 5 минут обновляет кэш свежими данными таблицы. */
+function warmCache() { warm_(true); }
+
+/** Запустить ОДИН раз вручную (выбрать installWarmup → ▶ Выполнить): ставит триггер warmCache каждые 5 минут. */
+function installWarmup() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'warmCache') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('warmCache').timeBased().everyMinutes(5).create();
+  warm_(true);
 }
 
 function packPerDay_(g, s) {
